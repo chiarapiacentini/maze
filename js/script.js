@@ -7,13 +7,13 @@ class Position {
     }
 };
 
-
-const DOWN = 0;
-const RIGHT = 1;
-const UP = 2;
-const LEFT = 3;
-const INVALID = -1;
-
+const Direction = {
+    DOWN: 0,
+    RIGHT: 1,
+    UP: 2,
+    LEFT: 3,
+    INVALID: -1,
+  }
 
 class Maze {
     constructor(width, height) {
@@ -35,21 +35,22 @@ class Maze {
 
     get_successor(cell_id, direction) {
         const s = this.get_position(cell_id);
-        if (direction == DOWN && s.y < this.height - 1)
+        if (direction == Direction.DOWN && s.y < this.height - 1)
             return this.get_cell_id(s.x, s.y + 1)
-        if (direction == RIGHT && s.x < this.width - 1)
+        if (direction == Direction.RIGHT && s.x < this.width - 1)
             return this.get_cell_id(s.x + 1, s.y)
-        if (direction == UP && s.y > 0)
+        if (direction == Direction.UP && s.y > 0)
             return this.get_cell_id(s.x, s.y - 1)
-        if (direction == LEFT && s.x > 0)
+        if (direction == Direction.LEFT && s.x > 0)
             return this.get_cell_id(s.x - 1, s.y)
         return cell_id;
     }
 
     get_successors(cell_id) {
         let successors = new Array();
-        for (let i = 0; i < 4; ++i) {
-            const successor = this.get_successor(cell_id, i);
+        for (const direction  of Object.values(Direction) )
+        {
+            const successor = this.get_successor(cell_id, direction);
             if (successor != cell_id) {
                 successors.push(successor);
             }
@@ -67,8 +68,8 @@ class Maze {
 
     get_moves(cell_id) {
         let successors = new Array();
-        for (let i = 0; i < 4; ++i) {
-            const successor = this.move(cell_id, i);
+        for (const direction  of Object.values(Direction) ){
+            const successor = this.move(cell_id, direction);
             if (successor != cell_id) {
                 successors.push(successor);
             }
@@ -93,14 +94,14 @@ class Maze {
         const pred_pos = this.get_position(pred);
         const succ_pos = this.get_position(succ);
         if (pred_pos.x + 1 == succ_pos.x)
-            return RIGHT;
+            return Direction.RIGHT;
         if (pred_pos.x - 1 == succ_pos.x)
-            return LEFT;
+            return Direction.LEFT;
         if (pred_pos.y - 1 == succ_pos.y)
-            return UP;
+            return Direction.UP;
         if (pred_pos.y + 1 == succ_pos.y)
-            return DOWN;
-        return INVALID;
+            return Direction.DOWN;
+        return Direction.INVALID;
     }
 
     set_free(pred, succ) {
@@ -192,12 +193,12 @@ function visualize_maze(maze) {
 
             // now add obstacles
             let cell_id = maze.get_cell_id(x, y);
-            if (!maze.is_free(cell_id, DOWN)) {
+            if (!maze.is_free(cell_id, Direction.DOWN)) {
                 cell.style.borderBottom = "4px solid black";
             } else {
                 cell.style.borderBottom = "4px solid lightgrey";
             }
-            if (!maze.is_free(cell_id, RIGHT)) {
+            if (!maze.is_free(cell_id, Direction.RIGHT)) {
                 cell.style.borderRight = "4px solid black";
             }
             else {
@@ -262,7 +263,6 @@ function explore_maze(maze, x, y) {
             }
         }
         const u = min_ele
-        console.log("min element " + String(u))
 
         // now remove
         if (min_index > -1) {
@@ -277,7 +277,6 @@ function explore_maze(maze, x, y) {
             const v = successors[i];
             if (visited.has(v))
                 continue
-            console.log(" not visited  " + String(v))
             const cost = distance[u] + 1;
             if (cost < distance[v]) {
                 distance[v] = cost;
@@ -365,43 +364,43 @@ clearMaze.addEventListener('click', () => {
 
 const moveLeft = document.getElementById('left');
 moveLeft.addEventListener('click', () => {
-    const move = LEFT;
+    const move = Direction.LEFT;
     update_position(move);
 });
 
 
 const moveRight = document.getElementById('right');
 moveRight.addEventListener('click', () => {
-    const move = RIGHT;
+    const move = Direction.RIGHT;
     update_position(move);
 });
 
 const moveUp = document.getElementById('up');
 moveUp.addEventListener('click', () => {
-    const move = UP;
+    const move = Direction.UP;
     update_position(move);
 });
 
 const moveDown = document.getElementById('down');
 moveDown.addEventListener('click', () => {
-    const move = DOWN;
+    const move = Direction.DOWN;
     update_position(move);
 });
 
 addEventListener('keydown', function (e) {
-    let move = LEFT;
+    let move = Direction.LEFT;
     switch (e.keyCode) {
         case 37:
-            move = LEFT;
+            move = Direction.LEFT;
             break;
         case 38:
-            move = UP;
+            move = Direction.UP;
             break;
         case 39:
-            move = RIGHT;
+            move = Direction.RIGHT;
             break;
         case 40:
-            move = DOWN;
+            move = Direction.DOWN;
             break;
         default:
             break;
