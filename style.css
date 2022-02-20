@@ -1,0 +1,129 @@
+body {    justify-content: center;
+}
+
+.title {
+    display: flex;
+    margin:0 auto;
+    height:60vh; 
+    background-color: #93B4B4;
+    color: #E2E2E2;
+    font-family: Noteworthy, Arial, Helvetica, sans-serif;
+    text-align: center;
+    justify-content: center;
+    align-items: flex-end;
+} 
+
+.levels
+{
+    display: flex;
+    justify-content: center;
+    background-color: #E2E2E2;
+    font-family: Chalckboard, Arial, Helvetica, sans-serif;
+    text-align: center;
+    align-items: center;
+}
+
+.level
+{
+    padding: 20px;
+    font-size: x-small;
+    color: #93B4B4;
+    justify-content: center;
+}
+
+.level h1
+{
+    color: #927B6D;
+    font-size: x-small;
+    text-transform: uppercase;
+    font-family: Noteworthy, Arial, Helvetica, sans-serif;
+}
+
+
+.level h2
+{
+    font-size: x-small;
+}
+
+#circle {
+    background: white;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+}
+
+.level1
+{
+    background-color: #C0CEC5;
+    display: flex;
+    justify-content: center;
+}
+
+.level1 h1
+{
+    color: #927B6D;
+    text-transform: uppercase;
+}
+
+.level2
+{
+    background-color: #927B6D;
+    display: flex;
+    justify-content: center;
+}
+
+.level2 h1
+{
+    color: #C0CEC5;
+    text-transform: uppercase;
+}
+
+.level3
+{
+    background-color: #C1DFFC;
+    display: flex;
+    justify-content: center;
+}
+
+.level3 h1
+{
+    color: #C0CEC5;
+    text-transform: uppercase;
+}
+
+
+.level4
+{
+    background-color: #DBBFC9;
+    display: flex;
+    justify-content: center;
+}
+
+.level4 h1
+{
+    color: #C0CEC5;
+    text-transform: uppercase;
+}
+
+
+.instructions
+{
+    text-align: center;
+    font-family: Noteworthy, Arial, Helvetica, sans-serif;
+    padding: 100px;
+}
+
+.person
+{
+    display: flex;
+    margin: 20px;
+    padding: 20px;
+    align-items: center;
+    background-color: #E2E2E2;
+}
+
+.person p
+{
+    padding: 20px;
+    padding-right: 40px;
+}
