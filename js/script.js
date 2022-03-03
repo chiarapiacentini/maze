@@ -188,12 +188,16 @@ class Maze {
         return distance.filter(x => x < inf);
     }
 
-    pick_targets(initial_position, n_targets)
-    {
+    pick_targets(initial_position, n_targets) {
         let targets = new Array(n_targets);
-        const explored = this.reachable_cells(initial_position.x, initial_position.y);
+        let explored = this.reachable_cells(initial_position.x, initial_position.y);
+        // leave out the first position
+        explored.splice(0, 1);
+        // randomly select targets
         for (let i = 0; i < n_targets; ++i) {
-            const selected_cell = explored[Math.floor(Math.random() * explored.length)];
+            let pos = Math.floor(Math.random() * explored.length);
+            const selected_cell = explored[pos];
+            explored.splice(pos, 1);
             targets[i] = selected_cell;
         }
         return targets;
@@ -217,8 +221,7 @@ class Level {
         }
     }
 
-    win()
-    {
+    win() {
         return this.score == this.n_targets && this.position == this.targets[this.n_targets - 1];
     }
 
@@ -229,40 +232,33 @@ class Game {
         this.n_levels = n_levels;
         this.current_level = 0;
         this.level = new Array(n_levels)
-        for (let i = 0; i < this.n_levels; ++i)
-        {
+        for (let i = 0; i < this.n_levels; ++i) {
             this.level[i] = new Level(5 + i, 5 + i, new Position(0, 0), generator, 3 + i);
         }
     }
 
-    won()
-    {
+    won() {
         return this.current_level == this.n_levels
     }
 
-    level_won(level)
-    {
+    level_won(level) {
         return this.level[level].win() && this.current_level == level;
     }
 
-    set_win_level(level)
-    {
+    set_win_level(level) {
         this.current_level = level;
         ++this.current_level;
     }
 
-    get_level(level)
-    {
+    get_level(level) {
         return this.level[level];
     }
 
-    get_current_level()
-    {
+    get_current_level() {
         return this.get_level(this.current_level);
     }
 
-    update(direction)
-    {
+    update(direction) {
         this.get_current_level().move(direction);
         if (this.level_won(this.current_level)) {
             alert("You won level " + String(this.current_level + 1));
@@ -359,19 +355,16 @@ function visualize_maze(maze, level) {
     }
 }
 
-function visualize_game(game)
-{
-    for (let l = 0; l < game.n_levels; ++l)
-    {
+function visualize_game(game) {
+    for (let l = 0; l < game.n_levels; ++l) {
         const level = game.get_level(l);
         console.log(level.score)
         visualize_maze(level.maze, "l" + String(l + 1));
     }
 }
 
-function get_cell(cell_id, level)
-{
-    return document.querySelector(".l"+ String(level + 1) + " .cell" + String(cell_id));
+function get_cell(cell_id, level) {
+    return document.querySelector(".l" + String(level + 1) + " .cell" + String(cell_id));
 }
 
 function draw_position(cell_id, level, color = "green") {
@@ -403,27 +396,30 @@ for (let i = 0; i < level.n_targets; ++i) {
 let previous_color = "white";
 
 function update_position(move) {
+    if (game.won()) {
+        alert("You won the entire game!");
+        return;
+    }
     let level = game.get_current_level();
     const position = level.position;
     const score = level.score;
     draw_position(position, game.current_level, previous_color);
     let l = game.current_level;
     game.update(move);
-    previous_color = get_color(level.position,l);
-    draw_position(level.position, game.current_level, "green");
-    if (score != level.score) {
-        previous_color = "white"
-    }
     if (level.win()) {
-        if (game.won()) {
-            alert("You won the entire game!");
-        } else {
+        if (!game.won()) {
             level = game.get_current_level();
             draw_position(level.position, game.current_level);
             for (let i = 0; i < level.n_targets; ++i) {
                 console.log("target " + String(level.targets[i]));
                 draw_position(level.targets[i], game.current_level, colors[i]);
             }
+        }
+    } else {
+        previous_color = get_color(level.position, l);
+        draw_position(level.position, game.current_level, "green");
+        if (score != level.score) {
+            previous_color = "white"
         }
     }
 }
