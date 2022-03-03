@@ -200,7 +200,7 @@ class Maze {
     }
 }
 
-class Game {
+class Level {
     constructor(width, height, initial_position, maze_builder, n_targets) {
         this.maze = maze_builder(width, height);
         this.score = 0;
@@ -222,6 +222,53 @@ class Game {
         return this.score == this.n_targets && this.position == this.targets[this.n_targets - 1];
     }
 
+}
+
+class Game {
+    constructor(n_levels, generator) {
+        this.n_levels = n_levels;
+        this.current_level = 0;
+        this.level = new Array(n_levels)
+        for (let i = 0; i < this.n_levels; ++i)
+        {
+            this.level[i] = new Level(5 + i, 5 + i, new Position(0, 0), generator, 3 + i);
+        }
+    }
+
+    won()
+    {
+        return this.current_level == this.n_levels
+    }
+
+    level_won(level)
+    {
+        return this.level[level].win() && this.current_level == level;
+    }
+
+    set_win_level(level)
+    {
+        this.current_level = level;
+        ++this.current_level;
+    }
+
+    get_level(level)
+    {
+        return this.level[level];
+    }
+
+    get_current_level()
+    {
+        return this.get_level(this.current_level);
+    }
+
+    update(direction)
+    {
+        this.get_current_level().move(direction);
+        if (this.level_won(this.current_level)) {
+            alert("You won level " + String(this.current_level + 1));
+            this.set_win_level(this.current_level);
+        }
+    }
 }
 
 function generate_maze_random(x, y, threshold) {
@@ -291,6 +338,7 @@ function visualize_maze(maze, level) {
             cell.style.height = "100px";
             cell.style.backgroundColor = "white";
             cell.style.border = "2px solid lightgrey";
+            cell.style.borderRadius = "10%";
 
             // now add obstacles
             let cell_id = maze.get_cell_id(x, y);
@@ -311,97 +359,74 @@ function visualize_maze(maze, level) {
     }
 }
 
-function draw_position(cell_id, color = "green") {
-    const cell = document.querySelector(".cell" + String(cell_id));
+function visualize_game(game)
+{
+    for (let l = 0; l < game.n_levels; ++l)
+    {
+        const level = game.get_level(l);
+        console.log(level.score)
+        visualize_maze(level.maze, "l" + String(l + 1));
+    }
+}
+
+function get_cell(cell_id, level)
+{
+    return document.querySelector(".l"+ String(level + 1) + " .cell" + String(cell_id));
+}
+
+function draw_position(cell_id, level, color = "green") {
+    const cell = get_cell(cell_id, level);
     cell.style.backgroundColor = color;
 }
 
-function clear_position(cell_id) {
-    const cell = document.querySelector(".cell" + String(cell_id));
-    cell.style.backgroundColor = "white";
-}
-function get_color(cell_id) {
-    const cell = document.querySelector(".cell" + String(cell_id));
+function get_color(cell_id, level) {
+    const cell = get_cell(cell_id, level);
     return cell.style.backgroundColor;
 }
 
 ///
 let size = 5;
 
-let colors = new Array("blue", "purple", "red");
-let game = new Game(size, size, new Position(0, 0), generate_maze_dpf, 3);
-visualize_maze(game.maze, "level1");
-visualize_maze(game.maze, "level2");
-visualize_maze(game.maze, "level3");
-visualize_maze(game.maze, "level4");
-draw_position(game.position);
-for (let i = 0; i < game.n_targets; ++i) {
-    console.log("target " + String(game.targets[i]));
-    draw_position(game.targets[i], colors[i]);
+let colors = new Array("blue", "purple", "red", "pink", "grey", "yellow");
+
+let game = new Game(4, generate_maze_dpf);
+visualize_game(game);
+
+let level = game.get_current_level();
+
+draw_position(level.position, game.current_level);
+for (let i = 0; i < level.n_targets; ++i) {
+    console.log("target " + String(level.targets[i]));
+    draw_position(level.targets[i], game.current_level, colors[i]);
 }
 
 let previous_color = "white";
 
 function update_position(move) {
-    const position = game.position;
-    const score = game.score;
-    draw_position(position, previous_color);
-    game.move(move);
-    previous_color = get_color(game.position);
-    draw_position(game.position, "green");
-    if (score != game.score) {
+    let level = game.get_current_level();
+    const position = level.position;
+    const score = level.score;
+    draw_position(position, game.current_level, previous_color);
+    let l = game.current_level;
+    game.update(move);
+    previous_color = get_color(level.position,l);
+    draw_position(level.position, game.current_level, "green");
+    if (score != level.score) {
         previous_color = "white"
     }
-    if (game.win()) {
-        alert("You win!");
+    if (level.win()) {
+        if (game.won()) {
+            alert("You won the entire game!");
+        } else {
+            level = game.get_current_level();
+            draw_position(level.position, game.current_level);
+            for (let i = 0; i < level.n_targets; ++i) {
+                console.log("target " + String(level.targets[i]));
+                draw_position(level.targets[i], game.current_level, colors[i]);
+            }
+        }
     }
 }
-
-
-const clearMaze = document.getElementById('clear');
-clearMaze.addEventListener('click', () => {
-
-    const div = document.querySelector(".maze");
-    draw_position(game.position, "white");
-    for (let i = 0; i < game.n_targets; ++i) {
-        draw_position(game.targets[i], "white");
-    }
-    while (div.firstChild) {
-        div.removeChild(div.firstChild);
-    }
-    size++;
-    game = new Game(size, size, new Position(0, 0), generate_maze_dpf, 3)
-    visualize_maze(game.maze);
-    draw_position(game.position);
-    for (let i = 0; i < game.n_targets; ++i) {
-        draw_position(game.targets[i], colors[i]);
-    }
-});
-
-const moveLeft = document.getElementById('left');
-moveLeft.addEventListener('click', () => {
-    const move = Direction.LEFT;
-    update_position(move);
-});
-
-
-const moveRight = document.getElementById('right');
-moveRight.addEventListener('click', () => {
-    const move = Direction.RIGHT;
-    update_position(move);
-});
-
-const moveUp = document.getElementById('up');
-moveUp.addEventListener('click', () => {
-    const move = Direction.UP;
-    update_position(move);
-});
-
-const moveDown = document.getElementById('down');
-moveDown.addEventListener('click', () => {
-    const move = Direction.DOWN;
-    update_position(move);
-});
 
 addEventListener('keydown', function (e) {
     let move = Direction.LEFT;

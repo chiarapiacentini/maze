@@ -1,6 +1,10 @@
 body {    justify-content: center;
 }
 
+img {
+    border-radius: 50%;
+}
+
 .title {
     display: flex;
     margin:0 auto;
@@ -52,54 +56,53 @@ body {    justify-content: center;
     height: 80px;
 }
 
-.level1
+.lvl
 {
-    background-color: #C0CEC5;
     display: flex;
     justify-content: center;
+    align-items: center; 
 }
 
-.level1 h1
+.lvl.l1
+{
+    background-color: #C0CEC5;
+}
+
+.l1 h1
 {
     color: #927B6D;
     text-transform: uppercase;
 }
 
-.level2
+.lvl.l2
 {
     background-color: #927B6D;
-    display: flex;
-    justify-content: center;
 }
 
-.level2 h1
+.l2 h1
 {
     color: #C0CEC5;
     text-transform: uppercase;
 }
 
-.level3
+.lvl.l3
 {
     background-color: #C1DFFC;
-    display: flex;
-    justify-content: center;
 }
 
-.level3 h1
+.l3 h1
 {
     color: #C0CEC5;
     text-transform: uppercase;
 }
 
 
-.level4
+.lvl.l4
 {
     background-color: #DBBFC9;
-    display: flex;
-    justify-content: center;
 }
 
-.level4 h1
+.l4 h1
 {
     color: #C0CEC5;
     text-transform: uppercase;
@@ -124,6 +127,11 @@ body {    justify-content: center;
 
 .person p
 {
-    padding: 20px;
-    padding-right: 40px;
+    padding-left: 80px;
+    padding-right: 80px;
+}
+
+.maze
+{
+    vertical-align: center;
 }
