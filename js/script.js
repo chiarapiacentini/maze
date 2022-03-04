@@ -185,13 +185,19 @@ class Maze {
                 }
             }
         }
-        return distance.filter(x => x < inf);
+        let explored = new Array();
+        for (let i = 0; i < distance.length; ++i) {
+            if (distance[i] < inf)
+                explored.push(i);
+        }
+        return explored;
     }
 
     pick_targets(initial_position, n_targets) {
         let targets = new Array(n_targets);
         let explored = this.reachable_cells(initial_position.x, initial_position.y);
         // leave out the first position
+        console.log(explored);
         explored.splice(0, 1);
         // randomly select targets
         for (let i = 0; i < n_targets; ++i) {
@@ -199,6 +205,7 @@ class Maze {
             const selected_cell = explored[pos];
             explored.splice(pos, 1);
             targets[i] = selected_cell;
+            console.log("pick target " + String(selected_cell))
         }
         return targets;
     }
@@ -212,17 +219,20 @@ class Level {
         this.position = this.maze.get_cell_id(initial_position.x, initial_position.y);
         // select random goals
         this.targets = this.maze.pick_targets(initial_position, this.n_targets);
+        this.found_targets = new Array();
     }
 
     move(direction) {
         this.position = this.maze.move(this.position, direction);
-        if (this.position == this.targets[this.score]) {
+        if (this.targets.includes(this.position) && !this.found_targets.includes(this.position)) {
+            this.found_targets.push(this.position);
             ++this.score;
+            console.log("found target " + String(this.position) + " " + String(this.n_targets - this.found_targets.length) + " target left");
         }
     }
 
     win() {
-        return this.score == this.n_targets && this.position == this.targets[this.n_targets - 1];
+        return this.score == this.n_targets;
     }
 
 }
@@ -233,7 +243,7 @@ class Game {
         this.current_level = 0;
         this.level = new Array(n_levels)
         for (let i = 0; i < this.n_levels; ++i) {
-            this.level[i] = new Level(5 + i, 5 + i, new Position(0, 0), generator, 3 + i);
+            this.level[i] = new Level(3 + i, 3 + i, new Position(0, 0), generator, 3 + i);
         }
     }
 
@@ -263,6 +273,8 @@ class Game {
         if (this.level_won(this.current_level)) {
             alert("You won level " + String(this.current_level + 1));
             this.set_win_level(this.current_level);
+            if (this.won())
+                alert("You won the game");
         }
     }
 }
@@ -397,7 +409,6 @@ let previous_color = "white";
 
 function update_position(move) {
     if (game.won()) {
-        alert("You won the entire game!");
         return;
     }
     let level = game.get_current_level();
