@@ -244,7 +244,7 @@ class Game {
         this.current_level = 0;
         this.level = new Array(n_levels)
         for (let i = 0; i < this.n_levels; ++i) {
-            this.level[i] = new Level(i, 3 + i, 3 + i, new Position(0, 0), generator, 3 + i);
+            this.level[i] = new Level(i, 5 + i, 5 + i, new Position(0, 0), generator, 3 + i);
         }
     }
 
