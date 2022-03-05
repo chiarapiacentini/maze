@@ -457,6 +457,10 @@ function update_position(move) {
         const img_level = document.querySelector(".l" + String(game.current_level));
         console.log(img_level);
         img_level.style.opacity = "1.0";
+        const l = document.querySelector(".lvl.l" + String(game.current_level + 1));
+        console.log("scroll top", l);
+        if (l != null)
+            l.scrollIntoView(true);
         if (!game.won()) {
             level = game.get_current_level();
             visualize_level(level)
