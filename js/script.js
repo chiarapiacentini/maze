@@ -212,7 +212,7 @@ class Maze {
 }
 
 class Level {
-    constructor(width, height, initial_position, maze_builder, n_targets) {
+    constructor(level_id, width, height, initial_position, maze_builder, n_targets) {
         this.maze = maze_builder(width, height);
         this.score = 0;
         this.n_targets = n_targets;
@@ -220,6 +220,7 @@ class Level {
         // select random goals
         this.targets = this.maze.pick_targets(initial_position, this.n_targets);
         this.found_targets = new Array();
+        this.level_id = level_id
     }
 
     move(direction) {
@@ -243,7 +244,7 @@ class Game {
         this.current_level = 0;
         this.level = new Array(n_levels)
         for (let i = 0; i < this.n_levels; ++i) {
-            this.level[i] = new Level(3 + i, 3 + i, new Position(0, 0), generator, 3 + i);
+            this.level[i] = new Level(i, 3 + i, 3 + i, new Position(0, 0), generator, 3 + i);
         }
     }
 
@@ -367,6 +368,27 @@ function visualize_maze(maze, level) {
     }
 }
 
+function visualize_level(level)
+{
+    const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " img");
+    let imgsArr = Array();
+    for (var i = 0; i < imgs.length; i++) {
+        var image = imgs[i];
+        imgsArr.push(image.getAttribute("src"));
+    }
+    console.log(imgsArr);
+    visualize_position(level.position, game.current_level, "resources/davide.png");
+    for (let i = 0; i < level.n_targets; ++i) {
+        visualize_position(level.targets[i], game.current_level, imgsArr[i]);
+    }
+    // let paths = new Array();
+    // for (const img in imgs) {
+    //     paths.push(img.src);
+    // }
+    // console.log(paths)
+    // imgs.forEach(img => console.log(img.src));
+}
+
 function visualize_game(game) {
     for (let l = 0; l < game.n_levels; ++l) {
         const level = game.get_level(l);
@@ -384,6 +406,19 @@ function draw_position(cell_id, level, color = "green") {
     cell.style.backgroundColor = color;
 }
 
+function visualize_position(cell_id, level, imgSrc) {
+    const cell = get_cell(cell_id, level);
+    var image = cell.querySelector('img');
+    if (image != null)
+       cell.removeChild(image);
+    if (imgSrc != null) {
+        var img = document.createElement("img");
+        img.src = imgSrc
+        img.style.opacity = "1.0";
+        cell.appendChild(img);
+    }
+}
+
 function get_color(cell_id, level) {
     const cell = get_cell(cell_id, level);
     return cell.style.backgroundColor;
@@ -399,11 +434,12 @@ visualize_game(game);
 
 let level = game.get_current_level();
 
-draw_position(level.position, game.current_level);
-for (let i = 0; i < level.n_targets; ++i) {
-    console.log("target " + String(level.targets[i]));
-    draw_position(level.targets[i], game.current_level, colors[i]);
-}
+visualize_level(level);
+// draw_position(level.position, game.current_level);
+// for (let i = 0; i < level.n_targets; ++i) {
+//     console.log("target " + String(level.targets[i]));
+//     draw_position(level.targets[i], game.current_level, colors[i]);
+// }
 
 let previous_color = "white";
 
@@ -414,24 +450,19 @@ function update_position(move) {
     let level = game.get_current_level();
     const position = level.position;
     const score = level.score;
-    draw_position(position, game.current_level, previous_color);
+    visualize_position(position, game.current_level, null);
     let l = game.current_level;
     game.update(move);
     if (level.win()) {
+        const img_level = document.querySelector(".l" + String(game.current_level));
+        console.log(img_level);
+        img_level.style.opacity = "1.0";
         if (!game.won()) {
             level = game.get_current_level();
-            draw_position(level.position, game.current_level);
-            for (let i = 0; i < level.n_targets; ++i) {
-                console.log("target " + String(level.targets[i]));
-                draw_position(level.targets[i], game.current_level, colors[i]);
-            }
+            visualize_level(level)
         }
     } else {
-        previous_color = get_color(level.position, l);
-        draw_position(level.position, game.current_level, "green");
-        if (score != level.score) {
-            previous_color = "white"
-        }
+        visualize_position(level.position, game.current_level, "resources/davide.png");
     }
 }
 
