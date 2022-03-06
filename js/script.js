@@ -219,41 +219,57 @@ class Level {
         this.position = this.maze.get_cell_id(initial_position.x, initial_position.y);
         // select random goals
         this.targets = this.maze.pick_targets(initial_position, this.n_targets);
-        this.found_targets = new Array();
+        this.found_targets = new Array(n_targets).fill(false);
         this.level_id = level_id
     }
 
     move(direction) {
         this.position = this.maze.move(this.position, direction);
-        if (this.targets.includes(this.position) && !this.found_targets.includes(this.position)) {
-            this.found_targets.push(this.position);
-            ++this.score;
-            console.log("found target " + String(this.position) + " " + String(this.n_targets - this.found_targets.length) + " target left");
-        }
     }
 
-    win() {
+    // returns the index of the target if it's found, otherwise -1
+    targetFound() {
+        const indexOfTarget = this.targets.indexOf(this.position);
+        if (indexOfTarget > -1 && !this.found_targets[indexOfTarget]) {
+            return indexOfTarget;
+        }
+        return -1;
+    }
+
+    won() {
         return this.score == this.n_targets;
+    }
+
+    updateTargetFound(targetId) {
+        this.found_targets[targetId] = true;
+        ++this.score;
     }
 
 }
 
 class Game {
+
+    // this is the model in the MCV design pattern. The state of the game is given by the current level and the state of the level
     constructor(n_levels, generator) {
-        this.n_levels = n_levels;
+        this.n_levels = n_levels; // constants
         this.current_level = 0;
         this.level = new Array(n_levels)
+        const initial_tiles = 5;
         for (let i = 0; i < this.n_levels; ++i) {
-            this.level[i] = new Level(i, 5 + i, 5 + i, new Position(0, 0), generator, 3 + i);
+            this.level[i] = new Level(i, initial_tiles + i, initial_tiles+ i, new Position(0, 0), generator, 3 + i);
         }
     }
 
-    won() {
+    game_won() {
         return this.current_level == this.n_levels
     }
 
-    level_won(level) {
-        return this.level[level].win() && this.current_level == level;
+    level_won() {
+        return this.get_current_level().won();
+    }
+
+    advance_level() {
+        ++this.current_level;
     }
 
     set_win_level(level) {
@@ -269,13 +285,53 @@ class Game {
         return this.get_level(this.current_level);
     }
 
-    update(direction) {
+    move(direction) {
         this.get_current_level().move(direction);
-        if (this.level_won(this.current_level)) {
-            alert("You won level " + String(this.current_level + 1));
-            this.set_win_level(this.current_level);
-            if (this.won())
-                alert("You won the game");
+        console.log("move " + String(direction) + " " + this.get_current_level().position)
+        return this.get_current_level().position;
+    }
+
+    get_position()
+    {
+        this.get_current_level().position;
+    }
+
+    updateTargetFound(targetId) {
+        this.get_current_level().updateTargetFound(targetId);
+    }
+}
+
+class Controller {
+    constructor(game, view) {
+        this.game = game;
+        this.view = view;
+    }
+
+    onStart() {
+        this.view.visualize_game(this.game);
+        this.view.visualize_level(this.game.get_current_level());
+    }
+
+    onMove(direction) {
+        const start = this.game.get_current_level().position;
+        const level = this.game.get_current_level()
+        const end = this.game.move(direction);
+        this.view.update_position(start, end, level.level_id);
+
+        const target = this.game.get_current_level().targetFound();
+        if (target > -1) {
+            this.view.onTargetFound(target, this.game.get_current_level().level_id);
+            this.game.updateTargetFound(target);
+        }
+
+        if (this.game.level_won()) {
+            this.view.onWinLevel(this.game.get_current_level());
+            this.game.advance_level();
+            if (this.game.game_won()) {
+                this.view.onWinGame();
+            } else {
+                this.view.visualize_level(this.game.get_current_level());
+            }
         }
     }
 }
@@ -334,160 +390,158 @@ function generate_maze_dpf(width, height) {
     return maze;
 }
 
-function visualize_maze(maze, level) {
-    const container = document.querySelector("." + level + " .maze");
-    for (let y = 0; y < maze.height; ++y) {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        for (let x = 0; x < maze.width; ++x) {
-            const cell = document.createElement("div");
-            cell.classList.add('cell' + String(maze.get_cell_id(x, y)));
-            cell.style.width = "100px";
-            cell.style.minHeight = "100px";
-            cell.style.height = "100px";
-            cell.style.backgroundColor = "white";
-            cell.style.border = "2px solid lightgrey";
-            cell.style.borderRadius = "10%";
 
-            // now add obstacles
-            let cell_id = maze.get_cell_id(x, y);
-            if (!maze.is_free(cell_id, Direction.DOWN)) {
-                cell.style.borderBottom = "4px solid black";
-            } else {
-                cell.style.borderBottom = "4px solid lightgrey";
-            }
-            if (!maze.is_free(cell_id, Direction.RIGHT)) {
-                cell.style.borderRight = "4px solid black";
-            }
-            else {
-                cell.style.borderRight = "4px solid lightgrey";
-            }
-            row.append(cell);
+
+class View {
+
+    constructor()
+    {
+        this.player = "resources/davide.png";
+    }
+    
+    get_cell(cell_id, level) {
+        return document.querySelector(".l" + String(level + 1) + " .cell" + String(cell_id));
+    }
+
+    draw_position(cell_id, level, color = "green") {
+        const cell = this.get_cell(cell_id, level);
+        cell.style.backgroundColor = color;
+    }
+
+    visualize_position(cell_id, level, imgSrc) {
+        const cell = this.get_cell(cell_id, level);
+        var image = cell.querySelector('img');
+        if (image != null)
+            cell.removeChild(image);
+        if (imgSrc != null) {
+            var img = document.createElement("img");
+            img.src = imgSrc
+            img.style.opacity = "1.0";
+            cell.appendChild(img);
         }
-        container.append(row)
     }
-}
 
-function visualize_level(level)
-{
-    const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " img");
-    let imgsArr = Array();
-    for (var i = 0; i < imgs.length; i++) {
-        var image = imgs[i];
-        imgsArr.push(image.getAttribute("src"));
+    visualize_maze(maze, level) {
+        const container = document.querySelector("." + level + " .maze");
+        const dim_cell = String(500. / maze.width) + "px";
+        const dim_board = String(500. / (maze.width * 100)) + "px";
+        for (let y = 0; y < maze.height; ++y) {
+            const row = document.createElement("div");
+            row.style.display = "flex";
+            for (let x = 0; x < maze.width; ++x) {
+                const cell = document.createElement("div");
+                cell.classList.add('cell' + String(maze.get_cell_id(x, y)));
+                cell.style.width = dim_cell;
+                cell.style.minHeight = dim_cell;
+                cell.style.height = dim_cell;
+                cell.style.backgroundColor = "white";
+                cell.style.border = dim_board + " solid lightgrey";
+                cell.style.borderRadius = "10%";
+
+                // now add obstacles
+                let cell_id = maze.get_cell_id(x, y);
+                if (!maze.is_free(cell_id, Direction.DOWN)) {
+                    cell.style.borderBottom = "4px solid black";
+                } else {
+                    cell.style.borderBottom = "4px solid lightgrey";
+                }
+                if (!maze.is_free(cell_id, Direction.RIGHT)) {
+                    cell.style.borderRight = "4px solid black";
+                }
+                else {
+                    cell.style.borderRight = "4px solid lightgrey";
+                }
+                row.append(cell);
+            }
+            container.append(row)
+        }
     }
-    console.log(imgsArr);
-    visualize_position(level.position, game.current_level, "resources/davide.png");
-    for (let i = 0; i < level.n_targets; ++i) {
-        visualize_position(level.targets[i], game.current_level, imgsArr[i]);
+
+    visualize_level(level) {
+        const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " img");
+        let imgsArr = Array();
+        for (var i = 0; i < imgs.length; i++) {
+            var image = imgs[i];
+            imgsArr.push(image.getAttribute("src"));
+        }
+        console.log(imgsArr);
+        this.visualize_position(level.position, game.current_level, this.player);
+        for (let i = 0; i < level.n_targets; ++i) {
+            this.visualize_position(level.targets[i], game.current_level, imgsArr[i]);
+        }
     }
-    // let paths = new Array();
-    // for (const img in imgs) {
-    //     paths.push(img.src);
-    // }
-    // console.log(paths)
-    // imgs.forEach(img => console.log(img.src));
-}
 
-function visualize_game(game) {
-    for (let l = 0; l < game.n_levels; ++l) {
-        const level = game.get_level(l);
-        console.log(level.score)
-        visualize_maze(level.maze, "l" + String(l + 1));
+    visualize_game(game) {
+        for (let l = 0; l < game.n_levels; ++l) {
+            const level = game.get_level(l);
+            console.log(level.score)
+            this.visualize_maze(level.maze, "l" + String(l + 1));
+        }
     }
-}
 
-function get_cell(cell_id, level) {
-    return document.querySelector(".l" + String(level + 1) + " .cell" + String(cell_id));
-}
-
-function draw_position(cell_id, level, color = "green") {
-    const cell = get_cell(cell_id, level);
-    cell.style.backgroundColor = color;
-}
-
-function visualize_position(cell_id, level, imgSrc) {
-    const cell = get_cell(cell_id, level);
-    var image = cell.querySelector('img');
-    if (image != null)
-       cell.removeChild(image);
-    if (imgSrc != null) {
-        var img = document.createElement("img");
-        img.src = imgSrc
-        img.style.opacity = "1.0";
-        cell.appendChild(img);
+    update_position(old_position, new_position, level)
+    {
+        // clear old position
+        this.visualize_position(old_position, level, null);
+        // update new position
+        this.visualize_position(new_position, level, this.player);
     }
-}
 
-function get_color(cell_id, level) {
-    const cell = get_cell(cell_id, level);
-    return cell.style.backgroundColor;
+    onTargetFound(target, levelId)
+    {
+        console.log("Found target ", target, " at level ", levelId + 1);
+        const divLevel = document.querySelector(".lvl.l" + String(levelId + 1));
+        const divPerson = divLevel.querySelector(".person .p" + String(target + 1))
+        divPerson.style.opacity = "1.0";
+    }
+
+    onWinLevel(level)
+    {
+        const level_id = level.level_id + 1
+        alert("You won level "+ String(level_id) + "!");
+        const img_level = document.querySelector(".l" + String(level_id));
+        console.log(img_level);
+        img_level.style.opacity = "1.0";
+        const l = document.querySelector(".lvl.l" + String(level_id + 1));
+        console.log("scroll top", l);
+        if (l != null)
+            l.scrollIntoView(true);
+    }
+
+    onWinGame()
+    {
+        alert("You won the game!");
+    }
 }
 
 ///
 let size = 5;
 
-let colors = new Array("blue", "purple", "red", "pink", "grey", "yellow");
-
 let game = new Game(4, generate_maze_dpf);
-visualize_game(game);
 
-let level = game.get_current_level();
+let view = new View();
 
-visualize_level(level);
-// draw_position(level.position, game.current_level);
-// for (let i = 0; i < level.n_targets; ++i) {
-//     console.log("target " + String(level.targets[i]));
-//     draw_position(level.targets[i], game.current_level, colors[i]);
-// }
-
-let previous_color = "white";
-
-function update_position(move) {
-    if (game.won()) {
-        return;
-    }
-    let level = game.get_current_level();
-    const position = level.position;
-    const score = level.score;
-    visualize_position(position, game.current_level, null);
-    let l = game.current_level;
-    game.update(move);
-    if (level.win()) {
-        const img_level = document.querySelector(".l" + String(game.current_level));
-        console.log(img_level);
-        img_level.style.opacity = "1.0";
-        const l = document.querySelector(".lvl.l" + String(game.current_level + 1));
-        console.log("scroll top", l);
-        if (l != null)
-            l.scrollIntoView(true);
-        if (!game.won()) {
-            level = game.get_current_level();
-            visualize_level(level)
-        }
-    } else {
-        visualize_position(level.position, game.current_level, "resources/davide.png");
-    }
-}
+let controller = new Controller(game, view);
+controller.onStart();
 
 addEventListener('keydown', function (e) {
-    let move = Direction.LEFT;
+    let direction = Direction.LEFT;
     switch (e.keyCode) {
         case 37:
-            move = Direction.LEFT;
+            direction = Direction.LEFT;
             break;
         case 38:
-            move = Direction.UP;
+            direction = Direction.UP;
             break;
         case 39:
-            move = Direction.RIGHT;
+            direction = Direction.RIGHT;
             break;
         case 40:
-            move = Direction.DOWN;
+            direction = Direction.DOWN;
             break;
         default:
             break;
     }
-    update_position(move);
+    controller.onMove(direction);
 });
 

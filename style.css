@@ -4,6 +4,7 @@ body {    justify-content: center;
 img {
     border-radius: 50%;
     opacity: 0.2;
+    object-fit: contain;
 }
 
 .title {
