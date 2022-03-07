@@ -130,6 +130,11 @@ class Maze {
     }
 
     is_free(cell_id, direction) {
+        const pos = this.get_position(cell_id);
+        if (pos.x == 0 && direction == Direction.LEFT)
+            return false;
+        if (pos.y == 0 && direction == Direction.UP)
+            return false;
         const edge_id = this.get_edge_id(cell_id, direction);
         return this.edges[edge_id];
     }
@@ -254,7 +259,7 @@ class Game {
         this.n_levels = n_levels; // constants
         this.current_level = 0;
         this.level = new Array(n_levels)
-        const initial_tiles = 5;
+        const initial_tiles = 4;
         for (let i = 0; i < this.n_levels; ++i) {
             this.level[i] = new Level(i, initial_tiles + i, initial_tiles+ i, new Position(0, 0), generator, 3 + i);
         }
@@ -408,57 +413,123 @@ class View {
         cell.style.backgroundColor = color;
     }
 
+    get_cell_dim(maze)
+    {
+        return 500 / maze.width;
+    }
+
     visualize_position(cell_id, level, imgSrc) {
         const cell = this.get_cell(cell_id, level);
-        var image = cell.querySelector('img');
+        console.log(cell.offsetWidth);
+        let width = 0;
+        if (typeof cell.clip !== "undefined") { width = cell.clip.width; }
+        else {
+            if (cell.style.pixelWidth) { width = cell.style.pixelWidth; }
+            else { width = cell.offsetWidth; }
+        }
+
+        var image = cell.querySelector('img.target');
         if (image != null)
             cell.removeChild(image);
         if (imgSrc != null) {
+            const pos = width / 4;
             var img = document.createElement("img");
+            img.classList.add("target");
             img.src = imgSrc
             img.style.opacity = "1.0";
+            img.style.position = "absolute";
+            img.style.bottom = String(pos) + "px";
+            img.style.left = String(pos) + "px";
+            img.style.zIndex = "2";
+            img.style.width = "50%"; /* or any custom size */
+            img.style.height = "50%"; 
+            img.style.ObjectFit = "contain";
             cell.appendChild(img);
         }
     }
 
     visualize_maze(maze, level) {
         const container = document.querySelector("." + level + " .maze");
-        const dim_cell = String(500. / maze.width) + "px";
-        const dim_board = String(500. / (maze.width * 100)) + "px";
+        const dim_cell = String(this.get_cell_dim(maze)) + "px";
+        // const dim_board = String(500. / (maze.width * 100)) + "px";
         for (let y = 0; y < maze.height; ++y) {
             const row = document.createElement("div");
             row.style.display = "flex";
             for (let x = 0; x < maze.width; ++x) {
                 const cell = document.createElement("div");
                 cell.classList.add('cell' + String(maze.get_cell_id(x, y)));
-                cell.style.width = dim_cell;
-                cell.style.minHeight = dim_cell;
-                cell.style.height = dim_cell;
-                cell.style.backgroundColor = "white";
-                cell.style.border = dim_board + " solid lightgrey";
-                cell.style.borderRadius = "10%";
+                // add the tile image
 
-                // now add obstacles
                 let cell_id = maze.get_cell_id(x, y);
-                if (!maze.is_free(cell_id, Direction.DOWN)) {
-                    cell.style.borderBottom = "4px solid black";
-                } else {
-                    cell.style.borderBottom = "4px solid lightgrey";
+                const down = maze.is_free(cell_id, Direction.DOWN);
+                const up = maze.is_free(cell_id, Direction.UP);
+                const left = maze.is_free(cell_id, Direction.LEFT);
+                const right = maze.is_free(cell_id, Direction.RIGHT);
+
+                function addTile(cell, src, transform) {
+                    var img = document.createElement("img");
+                    img.src = src;
+                    img.style.maxWidth = dim_cell;
+                    img.style.borderRadius = "10%";
+                    img.style.opacity = "1.0";
+                    img.style.border = "4px";
+                    img.style.zIndex = "1";
+                    if (transform != null) {
+                        img.style.transform = transform;
+                    }
+                    cell.appendChild(img);   
                 }
-                if (!maze.is_free(cell_id, Direction.RIGHT)) {
-                    cell.style.borderRight = "4px solid black";
+                // all neighbours are free
+                if (down && up && left && right) {
+                    addTile(cell, "resources/tile5.svg");
+                } else if (left && right && !up && !down) {
+                    addTile(cell, "resources/tile2.svg");
+                } else if (up && down && !left && !right) {
+                    addTile(cell, "resources/tile2.svg", "rotate(90deg)");
+                } else if (left && up && !right && !down) {
+                    addTile(cell, "resources/tile3.svg");
+                } else if (up && right && !down && !left) {
+                    addTile(cell, "resources/tile3.svg", "rotate(90deg)");
+                } else if (right && down && !left && !up) {
+                    addTile(cell, "resources/tile3.svg", "rotate(180deg)");
+                } else if (down && left && !up && !right) {
+                    addTile(cell, "resources/tile3.svg", "rotate(270deg)");
+                } else if (left && up && right && !down) {
+                    addTile(cell, "resources/tile4.svg");
+                } else if (!left && up && right && down) {
+                    addTile(cell, "resources/tile4.svg", "rotate(90deg)");
+                } else if (left && !up && right && down) {
+                    addTile(cell, "resources/tile4.svg", "rotate(180deg)");
+                } else if (left && up && !right && down) {
+                    addTile(cell, "resources/tile4.svg", "rotate(270deg)");
+                } else if (left && !up && !right && !down) {
+                    addTile(cell, "resources/tile6.svg");
+                } else if (!left && up && !right && !down) {
+                    addTile(cell, "resources/tile6.svg", "rotate(90deg)");
+                } else if (!left && !up && right && !down) {
+                    addTile(cell, "resources/tile6.svg", "rotate(180deg)");
+                } else if (!left && !up && !right && down) {
+                    addTile(cell, "resources/tile6.svg", "rotate(270deg)");
                 }
                 else {
-                    cell.style.borderRight = "4px solid lightgrey";
+                    addTile(cell, "resources/tile1.svg");
                 }
+                cell.style.position = "relative";
+                cell.style.borderRadius = "10%";
+                cell.style.margin = "4px";
+                cell.style.padding = "0px";
+                cell.style.border = "0px";
                 row.append(cell);
             }
+            row.style.margin = "0px";
+            row.style.padding = "0px";
+            row.style.border = "0px";
             container.append(row)
         }
     }
 
     visualize_level(level) {
-        const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " img");
+        const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " .instructions img");
         let imgsArr = Array();
         for (var i = 0; i < imgs.length; i++) {
             var image = imgs[i];
@@ -511,6 +582,9 @@ class View {
     onWinGame()
     {
         alert("You won the game!");
+        const top = document.querySelector(".title");
+        top.scrollIntoView(true);
+
     }
 }
 
