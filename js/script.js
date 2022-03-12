@@ -339,6 +339,38 @@ class Controller {
             }
         }
     }
+
+    positionOnClick()
+    {
+        const position = this.game.get_current_level().position;
+        const level = this.game.get_current_level().level_id;
+        return this.view.screenPosition(position, level);
+    }
+
+    onMoveClick(clickX, clickY)
+    {
+        console.log(
+            "clientX: " + clickX +clickY);
+        
+        const targetPos = this.positionOnClick();
+        let direction = Direction.LEFT;
+    
+        if (Math.abs(clickX - targetPos.x) > Math.abs(clickY- targetPos.y)) {
+            if (clickX < targetPos.x) {
+                direction = Direction.LEFT;
+            } else {
+                direction = Direction.RIGHT;
+            }
+        } else {
+            if (clickY > targetPos.y) {
+                direction = Direction.DOWN;
+            } else {
+                direction = Direction.UP;
+            }
+        }
+        console.log("Direction " + String(direction));
+        this.onMove(direction);
+    }
 }
 
 function generate_maze_random(x, y, threshold) {
@@ -404,18 +436,28 @@ class View {
         this.player = "resources/davide.png";
     }
     
-    get_cell(cell_id, level) {
-        return document.querySelector(".l" + String(level + 1) + " .cell" + String(cell_id));
+    get_cell(cellId, level) {
+        return document.querySelector(".l" + String(level + 1) + " .cell" + String(cellId));
     }
 
-    draw_position(cell_id, level, color = "green") {
-        const cell = this.get_cell(cell_id, level);
+    draw_position(cellId, level, color = "green") {
+        const cell = this.get_cell(cellId, level);
         cell.style.backgroundColor = color;
     }
 
     get_cell_dim(maze)
     {
         return 500 / maze.width;
+    }
+
+    screenPosition(cellId, level)
+    {
+        var element = this.get_cell(cellId, level);
+        var volume = element.getBoundingClientRect();
+        var topPos = (volume.top + volume.bottom) / 2.;
+        var leftPos = (volume.left + volume.right) / 2.;
+        console.log("Position ", leftPos, " ", topPos);
+        return new Position(leftPos, topPos);
     }
 
     visualize_position(cell_id, level, imgSrc) {
@@ -618,6 +660,11 @@ addEventListener('keydown', function (e) {
     }
     controller.onMove(direction);
 });
+
+document.body.addEventListener('click', function (e)
+{
+    controller.onMoveClick(e.clientX, e.clientY);
+}, true); 
 
 window.onscroll = function () { scrollFunction() };
 
