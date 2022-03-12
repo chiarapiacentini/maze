@@ -27,6 +27,12 @@ img {
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
     text-align: center;
     align-items: center;
+    position: -webkit-sticky; /* Required for Safari */
+    position: sticky;
+    transition: 4s;
+    top: 0px;
+    z-index: 99;
+    max-width:100%;
 }
 
 .level

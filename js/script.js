@@ -619,3 +619,25 @@ addEventListener('keydown', function (e) {
     controller.onMove(direction);
 });
 
+window.onscroll = function () { scrollFunction() };
+
+function scrollFunction() {
+    const imgs = document.querySelectorAll(".levels img");
+    const hs = document.querySelectorAll(".levels h1, h2");
+    const limit = 350;
+    if (document.body.scrollTop > limit || document.documentElement.scrollTop > limit) {
+        imgs.forEach(function (img) {
+            img.style.width = "50%";
+            img.style.width = "50%";
+        })
+        hs.forEach(function (h2) {
+            h2.style.display = "none";
+        })
+    } else {
+        imgs.forEach(function (img) {
+            img.style.width = "100%";
+            img.style.width = "100%";
+        })
+        hs.forEach(function (h2) { h2.style.display = "block"; });
+    }
+} 
