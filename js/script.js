@@ -628,6 +628,30 @@ class View {
         top.scrollIntoView(true);
 
     }
+
+    clear()
+    {
+        // clear maze
+        const mazes = document.querySelectorAll(".maze");
+        mazes.forEach(function (maze) {
+            maze.innerHTML = '';
+        })
+            // reset the levels
+        let imgs = document.querySelectorAll(".levels img");
+        imgs.forEach(function (img) {
+            img.style.opacity = "0.5";
+        })
+
+        // reset the targets of each level
+        imgs = document.querySelectorAll(".person img");
+        imgs.forEach(function (img) {
+            img.style.opacity = "0.5";
+        })
+
+        // scroll to level 1
+        const top = document.querySelector(".lvl.l1");
+        top.scrollIntoView(true);
+    }
 }
 
 ///
@@ -665,6 +689,18 @@ document.body.addEventListener('click', function (e)
 {
     controller.onMoveClick(e.clientX, e.clientY);
 }, true); 
+
+document.getElementById("play").addEventListener(
+    "click", function (e) {
+        game = new Game(4, generate_maze_dpf);
+
+        view.clear();
+
+        // create a controller for the new game
+        controller = new Controller(game, view);
+        controller.onStart();
+    }
+)
 
 window.onscroll = function () { scrollFunction() };
 
