@@ -313,15 +313,15 @@ class Controller {
     }
 
     onStart() {
-        this.view.visualize_game(this.game);
-        this.view.visualize_level(this.game.get_current_level());
+        this.view.visualizeGame(this.game);
+        this.view.visualizeLevel(this.game.get_current_level());
     }
 
     onMove(direction) {
         const start = this.game.get_current_level().position;
         const level = this.game.get_current_level()
         const end = this.game.move(direction);
-        this.view.update_position(start, end, level.level_id);
+        this.view.updatePosition(start, end, level.level_id);
 
         const target = this.game.get_current_level().targetFound();
         if (target > -1) {
@@ -335,7 +335,7 @@ class Controller {
             if (this.game.game_won()) {
                 this.view.onWinGame();
             } else {
-                this.view.visualize_level(this.game.get_current_level());
+                this.view.visualizeLevel(this.game.get_current_level());
             }
         }
     }
@@ -440,14 +440,9 @@ class View {
         return document.querySelector(".l" + String(level + 1) + " .cell" + String(cellId));
     }
 
-    draw_position(cellId, level, color = "green") {
-        const cell = this.get_cell(cellId, level);
-        cell.style.backgroundColor = color;
-    }
-
     get_cell_dim(maze)
     {
-        return 500 / maze.width;
+        return 400 / maze.width / 2;
     }
 
     screenPosition(cellId, level)
@@ -460,7 +455,7 @@ class View {
         return new Position(leftPos, topPos);
     }
 
-    visualize_position(cell_id, level, imgSrc) {
+    visualizePosition(cell_id, level, imgSrc) {
         const cell = this.get_cell(cell_id, level);
         console.log(cell.offsetWidth);
         let width = 0;
@@ -474,18 +469,9 @@ class View {
         if (image != null)
             cell.removeChild(image);
         if (imgSrc != null) {
-            const pos = width / 4;
             var img = document.createElement("img");
             img.classList.add("target");
             img.src = imgSrc
-            img.style.opacity = "1.0";
-            img.style.position = "absolute";
-            img.style.bottom = String(pos) + "px";
-            img.style.left = String(pos) + "px";
-            img.style.zIndex = "2";
-            img.style.width = "50%"; /* or any custom size */
-            img.style.height = "50%"; 
-            img.style.ObjectFit = "contain";
             cell.appendChild(img);
         }
     }
@@ -493,12 +479,12 @@ class View {
     visualize_maze(maze, level) {
         const container = document.querySelector("." + level + " .maze");
         const dim_cell = String(this.get_cell_dim(maze)) + "px";
-        // const dim_board = String(500. / (maze.width * 100)) + "px";
         for (let y = 0; y < maze.height; ++y) {
             const row = document.createElement("div");
-            row.style.display = "flex";
+            row.classList.add("row");
             for (let x = 0; x < maze.width; ++x) {
                 const cell = document.createElement("div");
+                cell.classList.add("tile");
                 cell.classList.add('cell' + String(maze.get_cell_id(x, y)));
                 // add the tile image
 
@@ -511,11 +497,6 @@ class View {
                 function addTile(cell, src, transform) {
                     var img = document.createElement("img");
                     img.src = src;
-                    img.style.maxWidth = dim_cell;
-                    img.style.borderRadius = "10%";
-                    img.style.opacity = "1.0";
-                    img.style.border = "4px";
-                    img.style.zIndex = "1";
                     if (transform != null) {
                         img.style.transform = transform;
                     }
@@ -556,21 +537,14 @@ class View {
                 else {
                     addTile(cell, "resources/tile1.svg");
                 }
-                cell.style.position = "relative";
-                cell.style.borderRadius = "10%";
-                cell.style.margin = "4px";
-                cell.style.padding = "0px";
-                cell.style.border = "0px";
+
                 row.append(cell);
             }
-            row.style.margin = "0px";
-            row.style.padding = "0px";
-            row.style.border = "0px";
             container.append(row)
         }
     }
 
-    visualize_level(level) {
+    visualizeLevel(level) {
         const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " .instructions img");
         let imgsArr = Array();
         for (var i = 0; i < imgs.length; i++) {
@@ -578,13 +552,13 @@ class View {
             imgsArr.push(image.getAttribute("src"));
         }
         console.log(imgsArr);
-        this.visualize_position(level.position, game.current_level, this.player);
+        this.visualizePosition(level.position, game.current_level, this.player);
         for (let i = 0; i < level.n_targets; ++i) {
-            this.visualize_position(level.targets[i], game.current_level, imgsArr[i]);
+            this.visualizePosition(level.targets[i], game.current_level, imgsArr[i]);
         }
     }
 
-    visualize_game(game) {
+    visualizeGame(game) {
         for (let l = 0; l < game.n_levels; ++l) {
             const level = game.get_level(l);
             console.log(level.score)
@@ -592,12 +566,12 @@ class View {
         }
     }
 
-    update_position(old_position, new_position, level)
+    updatePosition(old_position, new_position, level)
     {
         // clear old position
-        this.visualize_position(old_position, level, null);
+        this.visualizePosition(old_position, level, null);
         // update new position
-        this.visualize_position(new_position, level, this.player);
+        this.visualizePosition(new_position, level, this.player);
     }
 
     onTargetFound(target, levelId)
