@@ -35,9 +35,15 @@ img {
     max-width:100%;
 }
 
+.commands
+{
+    display: flex;
+    flex-direction: column;    
+}
+
 .level
 {
-    padding: 20px;
+    /* padding: 20px; */
     font-size: x-small;
     color: #93B4B4;
     justify-content: center;
@@ -60,14 +66,13 @@ img {
 #circle {
     background: white;
     border-radius: 50%;
-    width: 80px;
-    height: 80px;
 }
 
 .lvl
 {
     display: flex;
-    justify-content: center;
+    text-align: center;
+    justify-content: space-around;
     align-items: center; 
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
 }
@@ -124,22 +129,25 @@ img {
 {
     text-align: center;
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
-    padding: 100px;
+    max-width: 25vw;
+    max-width: 300px;
 }
 
 .person
 {
     display: flex;
-    margin: 20px;
-    padding: 20px;
     align-items: center;
-    background-color: #E2E2E2;
 }
 
-.person p
+.person img
 {
-    padding-left: 80px;
-    padding-right: 80px;
+    max-width: 10vw;
+}
+
+.people
+{
+    padding-top: 10vw;
+    padding-bottom: 10vw;
 }
 
 .maze
@@ -147,20 +155,24 @@ img {
     vertical-align: center;
 }
 
+.row
+{
+    display : flex;
+    max-width: 75vw;
+    max-width: 500px;
+}
+
 .tile 
 {
     position : relative;
-    margin : 4px;
-    padding : 0px;
-    border : 0px;
+    margin : 1px;
 }
 
 .tile img
 {
-    max-width: 100px;
+    max-width:100%;
     border-radius : 10%;
     opacity : 1.0;
-    border : 4px;
     z-index : 1;
 }
 
@@ -174,21 +186,61 @@ img.target
     height : 50%; 
     object-fit : contain;
     border-radius : 50%;
-    bottom : 25px;
-    left : 25px;
-}
-
-.row
-{
-    display : flex;
-    margin : 0px;
-    padding : 0px;
-    border : 0px;
+    margin: auto;
+    top: 0; left: 0; bottom: 0; right: 0;
 }
 
 /* media queries */
-@media (max-width :800px){
-    .person p{
+@media (max-width : 400px) {
+    .lvl {
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+
+    .instructions {
+        flex-direction: column;
+        flex-wrap: wrap;   
+    }
+
+    .people {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;   
+        text-align: center;
+        justify-content: space-between;
+        align-items: center; 
+    }
+
+    .person
+    {
+        background-color: transparent;
+    }
+
+    .person p {
         display: none;
+    }
+
+    .lvl.l2
+    {
+        flex-direction: column-reverse;  
+    }
+
+    .lvl.l4
+    {
+        flex-direction: column-reverse;  
+    }
+}
+
+@media (max-width : 600px) {
+    .lvl h1{
+        font-size: large;
+    }
+
+    .lvl h2{
+        font-size:medium;
+    }
+
+    .lvl {
+        font-size: small;
     }
 }

@@ -478,7 +478,6 @@ class View {
 
     visualize_maze(maze, level) {
         const container = document.querySelector("." + level + " .maze");
-        const dim_cell = String(this.get_cell_dim(maze)) + "px";
         for (let y = 0; y < maze.height; ++y) {
             const row = document.createElement("div");
             row.classList.add("row");
@@ -680,7 +679,7 @@ window.onscroll = function () { scrollFunction() };
 
 function scrollFunction() {
     const imgs = document.querySelectorAll(".levels img");
-    const hs = document.querySelectorAll(".levels h1, h2");
+    const hs = document.querySelectorAll(".levels h1, .levels h2");
     const limit = 350;
     if (document.body.scrollTop > limit || document.documentElement.scrollTop > limit) {
         imgs.forEach(function (img) {
