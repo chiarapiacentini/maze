@@ -142,6 +142,8 @@ img {
 .person img
 {
     max-width: 10vw;
+    padding-left: 2vw;
+    padding-right: 2vw;
 }
 
 .people

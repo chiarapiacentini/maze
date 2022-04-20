@@ -307,9 +307,10 @@ class Game {
 }
 
 class Controller {
-    constructor(game, view) {
+    constructor(game, view, sounds) {
         this.game = game;
         this.view = view;
+        this.sounds = sounds;
     }
 
     onStart() {
@@ -325,18 +326,28 @@ class Controller {
 
         const target = this.game.get_current_level().targetFound();
         if (target > -1) {
-            this.view.onTargetFound(target, this.game.get_current_level().level_id);
             this.game.updateTargetFound(target);
+            this.view.onTargetFound(target, this.game.get_current_level().level_id);
         }
 
         if (this.game.level_won()) {
             this.view.onWinLevel(this.game.get_current_level());
             this.game.advance_level();
             if (this.game.game_won()) {
+                this.sounds.onWindGame();
                 this.view.onWinGame();
             } else {
+                this.sounds.onWinLevel();
                 this.view.visualizeLevel(this.game.get_current_level());
             }
+        } else if (target > -1){
+            this.sounds.onTargetFound();
+        } else if (start == end)
+        {
+            this.sounds.onHit();
+        }
+        else {
+            this.sounds.onMove();
         }
     }
 
@@ -584,11 +595,11 @@ class View {
     onWinLevel(level)
     {
         const level_id = level.level_id + 1
-        alert("You won level "+ String(level_id) + "!");
         const img_level = document.querySelector(".l" + String(level_id));
         console.log(img_level);
         img_level.style.opacity = "1.0";
         const l = document.querySelector(".lvl.l" + String(level_id + 1));
+        alert("You won level "+ String(level_id) + "!");
         console.log("scroll top", l);
         if (l != null)
             l.scrollIntoView(true);
@@ -627,6 +638,87 @@ class View {
     }
 }
 
+function Sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+      this.sound.play();
+    }
+    this.pause = function(){
+      this.sound.pause();
+    }
+    this.stop = function(){
+        this.sound.pause();
+        this.sound.currentTime = 0;
+      }
+} 
+
+class Sounds {
+
+    constructor()
+    {
+        this.soundOn = true;
+        this.backgroundMusic = new Sound("resources/background.mp3");
+        this.move = new Sound("resources/move.mp3");
+        this.hit = new Sound("resources/hit.mp3");
+        this.target = new Sound("resources/target.mp3");
+        this.level = new Sound("resources/level.wav");
+        this.game = new Sound("resources/level.wav");
+
+        this.backgroundMusic.sound.setAttribute("loop", "true");
+        this.backgroundMusic.play();
+    }
+
+    play(sound)
+    {
+        this.move.stop()
+        this.hit.stop()
+        this.target.stop()
+        this.level.stop()
+        this.game.stop()
+        if (this.soundOn)
+            sound.play();
+    }
+
+    onWindGame()
+    {
+        this.play(this.game);
+    }
+
+    onMove()
+    {
+        this.play(this.move);
+    }
+
+    onHit()
+    {
+        this.play(this.hit);
+    }
+    
+    onWinLevel()
+    {
+        this.play(this.level);
+    }
+
+    onTargetFound()
+    {
+        this.play(this.target);
+    }
+
+    switch()
+    {
+        if (this.soundOn) {
+            this.soundOn = false;
+            this.backgroundMusic.pause()
+        } else {
+            this.soundOn = true;
+            this.backgroundMusic.play();
+        }
+    }
+}
 ///
 let size = 5;
 
@@ -634,7 +726,9 @@ let game = new Game(4, generate_maze_dpf);
 
 let view = new View();
 
-let controller = new Controller(game, view);
+const sounds = new Sounds();
+
+let controller = new Controller(game, view, sounds);
 controller.onStart();
 
 addEventListener('keydown', function (e) {
@@ -670,7 +764,7 @@ document.getElementById("play").addEventListener(
         view.clear();
 
         // create a controller for the new game
-        controller = new Controller(game, view);
+        controller = new Controller(game, view, sounds);
         controller.onStart();
     }
 )
@@ -697,3 +791,9 @@ function scrollFunction() {
         hs.forEach(function (h2) { h2.style.display = "block"; });
     }
 } 
+  
+document.getElementById("music").addEventListener(
+    "click", function (e) {
+        controller.sounds.switch();
+    }
+)
