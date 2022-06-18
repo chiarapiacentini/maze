@@ -358,11 +358,17 @@ class Controller {
         return this.view.screenPosition(position, level);
     }
 
-    onMoveClick(clickX, clickY)
+    onMoveClick(clickX, clickY, target)
     {
         console.log(
-            "clientX: " + clickX +clickY);
+            "clientX: " + clickX + " " + clickY);
         
+        const level = this.game.get_current_level().level_id + 1; 
+        
+        if (!document.querySelector(".l" + level + " .maze").contains(target)) {
+            return;
+        }
+
         const targetPos = this.positionOnClick();
         let direction = Direction.LEFT;
     
@@ -514,38 +520,38 @@ class View {
                 }
                 // all neighbours are free
                 if (down && up && left && right) {
-                    addTile(cell, "resources/tile5.svg");
+                    addTile(cell, "resources/tile5.png");
                 } else if (left && right && !up && !down) {
-                    addTile(cell, "resources/tile2.svg");
+                    addTile(cell, "resources/tile2.png");
                 } else if (up && down && !left && !right) {
-                    addTile(cell, "resources/tile2.svg", "rotate(90deg)");
+                    addTile(cell, "resources/tile2.png", "rotate(90deg)");
                 } else if (left && up && !right && !down) {
-                    addTile(cell, "resources/tile3.svg");
+                    addTile(cell, "resources/tile3.png");
                 } else if (up && right && !down && !left) {
-                    addTile(cell, "resources/tile3.svg", "rotate(90deg)");
+                    addTile(cell, "resources/tile3.png", "rotate(90deg)");
                 } else if (right && down && !left && !up) {
-                    addTile(cell, "resources/tile3.svg", "rotate(180deg)");
+                    addTile(cell, "resources/tile3.png", "rotate(180deg)");
                 } else if (down && left && !up && !right) {
-                    addTile(cell, "resources/tile3.svg", "rotate(270deg)");
+                    addTile(cell, "resources/tile3.png", "rotate(270deg)");
                 } else if (left && up && right && !down) {
-                    addTile(cell, "resources/tile4.svg");
+                    addTile(cell, "resources/tile4.png");
                 } else if (!left && up && right && down) {
-                    addTile(cell, "resources/tile4.svg", "rotate(90deg)");
+                    addTile(cell, "resources/tile4.png", "rotate(90deg)");
                 } else if (left && !up && right && down) {
-                    addTile(cell, "resources/tile4.svg", "rotate(180deg)");
+                    addTile(cell, "resources/tile4.png", "rotate(180deg)");
                 } else if (left && up && !right && down) {
-                    addTile(cell, "resources/tile4.svg", "rotate(270deg)");
+                    addTile(cell, "resources/tile4.png", "rotate(270deg)");
                 } else if (left && !up && !right && !down) {
-                    addTile(cell, "resources/tile6.svg");
+                    addTile(cell, "resources/tile6.png");
                 } else if (!left && up && !right && !down) {
-                    addTile(cell, "resources/tile6.svg", "rotate(90deg)");
+                    addTile(cell, "resources/tile6.png", "rotate(90deg)");
                 } else if (!left && !up && right && !down) {
-                    addTile(cell, "resources/tile6.svg", "rotate(180deg)");
+                    addTile(cell, "resources/tile6.png", "rotate(180deg)");
                 } else if (!left && !up && !right && down) {
-                    addTile(cell, "resources/tile6.svg", "rotate(270deg)");
+                    addTile(cell, "resources/tile6.png", "rotate(270deg)");
                 }
                 else {
-                    addTile(cell, "resources/tile1.svg");
+                    addTile(cell, "resources/tile1.png");
                 }
 
                 row.append(cell);
@@ -754,7 +760,7 @@ addEventListener('keydown', function (e) {
 
 document.body.addEventListener('click', function (e)
 {
-    controller.onMoveClick(e.clientX, e.clientY);
+    controller.onMoveClick(e.clientX, e.clientY, e.target);
 }, true); 
 
 document.getElementById("play").addEventListener(
