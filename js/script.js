@@ -30,32 +30,32 @@ class Maze {
         this.edges = new Array(this.n * 2).fill(false);
     }
 
-    get_cell_id(x, y) {
+    getCellId(x, y) {
         return x + this.width * y;
     }
 
-    get_position(id) {
+    getPosition(id) {
         const x = id % this.width;
         const y = Math.floor(id / this.width);
         return new Position(x, y);
     }
 
-    get_neighbor(cell_id, direction) {
-        const position = this.get_position(cell_id);
-        if (this.exceed_bound(position, direction))
-            return cell_id;
+    getNeighbor(cellId, direction) {
+        const position = this.getPosition(cellId);
+        if (this.exceedBound(position, direction))
+            return cellId;
         if (direction == Direction.DOWN)
-            return this.get_cell_id(position.x, position.y + 1)
+            return this.getCellId(position.x, position.y + 1)
         if (direction == Direction.RIGHT)
-            return this.get_cell_id(position.x + 1, position.y)
+            return this.getCellId(position.x + 1, position.y)
         if (direction == Direction.UP)
-            return this.get_cell_id(position.x, position.y - 1)
+            return this.getCellId(position.x, position.y - 1)
         if (direction == Direction.LEFT)
-            return this.get_cell_id(position.x - 1, position.y)
-        return cell_id;
+            return this.getCellId(position.x - 1, position.y)
+        return cellId;
     }
 
-    exceed_bound(position, direction) {
+    exceedBound(position, direction) {
         if (direction == Direction.DOWN)
             return position.y >= this.height - 1;
         if (direction == Direction.RIGHT)
@@ -67,80 +67,80 @@ class Maze {
         return true;
     }
 
-    get_direction(pred, succ) {
-        const pred_pos = this.get_position(pred);
-        const succ_pos = this.get_position(succ);
-        if (pred_pos.x + 1 == succ_pos.x)
+    getDirection(pred, succ) {
+        const predPos = this.getPosition(pred);
+        const succPos = this.getPosition(succ);
+        if (predPos.x + 1 == succPos.x)
             return Direction.RIGHT;
-        if (pred_pos.x - 1 == succ_pos.x)
+        if (predPos.x - 1 == succPos.x)
             return Direction.LEFT;
-        if (pred_pos.y - 1 == succ_pos.y)
+        if (predPos.y - 1 == succPos.y)
             return Direction.UP;
-        if (pred_pos.y + 1 == succ_pos.y)
+        if (predPos.y + 1 == succPos.y)
             return Direction.DOWN;
         return Direction.INVALID;
     }
 
-    get_neighbors(cell_id) {
+    getNeighbors(cellId) {
         let successors = new Array();
         for (const direction of Object.values(Direction)) {
-            const successor = this.get_neighbor(cell_id, direction);
-            if (successor != cell_id) {
+            const successor = this.getNeighbor(cellId, direction);
+            if (successor != cellId) {
                 successors.push(successor);
             }
         }
         return successors;
     }
 
-    get_edge_id(cell_id, direction) {
-        const successor = this.get_neighbor(cell_id, direction);
-        const id = Math.min(cell_id, successor)
+    getEdgeId(cellId, direction) {
+        const successor = this.getNeighbor(cellId, direction);
+        const id = Math.min(cellId, successor)
         return id + this.n * (direction % 2);
     }
 
-    move(cell_id, direction) {
-        const edge_id = this.get_edge_id(cell_id, direction);
-        if (this.edges[edge_id])
-            return this.get_neighbor(cell_id, direction);
-        return cell_id;
+    move(cellId, direction) {
+        const edgeId = this.getEdgeId(cellId, direction);
+        if (this.edges[edgeId])
+            return this.getNeighbor(cellId, direction);
+        return cellId;
 
     }
 
-    get_moves(cell_id) {
+    getMoves(cellId) {
         let successors = new Array();
         for (const direction of Object.values(Direction)) {
-            const successor = this.move(cell_id, direction);
-            if (successor != cell_id) {
+            const successor = this.move(cellId, direction);
+            if (successor != cellId) {
                 successors.push(successor);
             }
         }
         return successors;
     }
 
-    set_obstacle(pred, succ) {
-        const dir = this.get_direction(pred, succ);
-        const edge_id = this.get_edge_id(pred, dir);
-        this.edges[edge_id] = false;
+    setObstacle(pred, succ) {
+        const dir = this.getDirection(pred, succ);
+        const edgeId = this.getEdgeId(pred, dir);
+        this.edges[edgeId] = false;
     }
 
-    set_free(pred, succ) {
-        const dir = this.get_direction(pred, succ);
-        const edge_id = this.get_edge_id(pred, dir);
-        this.edges[edge_id] = true;
+    setFree(pred, succ) {
+        const dir = this.getDirection(pred, succ);
+        const edgeId = this.getEdgeId(pred, dir);
+        this.edges[edgeId] = true;
     }
 
-    is_free(cell_id, direction) {
-        const pos = this.get_position(cell_id);
+    isFree(cellId, direction) {
+        const pos = this.getPosition(cellId);
         if (pos.x == 0 && direction == Direction.LEFT)
             return false;
         if (pos.y == 0 && direction == Direction.UP)
             return false;
-        const edge_id = this.get_edge_id(cell_id, direction);
-        return this.edges[edge_id];
+        const edgeId = this.getEdgeId(cellId, direction);
+        return this.edges[edgeId];
     }
 
-    reachable_cells(x, y) {
-        const source = this.get_cell_id(x, y);
+    reachableCells(x, y) {
+        const source = this.getCellId(x, y);
         // dijkstra algorithm
         const n = this.n
         const inf = n * n + 1
@@ -156,25 +156,25 @@ class Maze {
 
         while (queue.length != 0) {
 
-            let min_ele = -1;
-            let min_priority = inf;
-            let min_index = -1;
+            let minEle = -1;
+            let minPriority = inf;
+            let minIndex = -1;
             for (let j = 0; j < queue.length; ++j) {
                 const ele = queue[j];
-                if (distance[ele] < min_priority) {
-                    min_priority = distance[ele];
-                    min_ele = ele;
-                    min_index = j;
+                if (distance[ele] < minPriority) {
+                    minPriority = distance[ele];
+                    minEle = ele;
+                    minIndex = j;
                 }
             }
-            const u = min_ele
+            const u = minEle
 
             // now remove
-            if (min_index > -1) {
-                queue.splice(min_index, 1);
+            if (minIndex > -1) {
+                queue.splice(minIndex, 1);
             }
 
-            const successors = this.get_moves(u);
+            const successors = this.getMoves(u);
             if (successors.length == 0)
                 break;
 
@@ -198,34 +198,34 @@ class Maze {
         return explored;
     }
 
-    pick_targets(initial_position, n_targets) {
-        let targets = new Array(n_targets);
-        let explored = this.reachable_cells(initial_position.x, initial_position.y);
+    pickTargets(initialPosition, nTargets) {
+        let targets = new Array(nTargets);
+        let explored = this.reachableCells(initialPosition.x, initialPosition.y);
         // leave out the first position
         console.log(explored);
         explored.splice(0, 1);
         // randomly select targets
-        for (let i = 0; i < n_targets; ++i) {
+        for (let i = 0; i < nTargets; ++i) {
             let pos = Math.floor(Math.random() * explored.length);
-            const selected_cell = explored[pos];
+            const selectedCell = explored[pos];
             explored.splice(pos, 1);
-            targets[i] = selected_cell;
-            console.log("pick target " + String(selected_cell))
+            targets[i] = selectedCell;
+            console.log("pick target " + String(selectedCell))
         }
         return targets;
     }
 }
 
 class Level {
-    constructor(level_id, width, height, initial_position, maze_builder, n_targets) {
-        this.maze = maze_builder(width, height);
+    constructor(levelId, width, height, initialPosition, mazeBuilder, nTargets) {
+        this.maze = mazeBuilder(width, height);
         this.score = 0;
-        this.n_targets = n_targets;
-        this.position = this.maze.get_cell_id(initial_position.x, initial_position.y);
+        this.nTargets = nTargets;
+        this.position = this.maze.getCellId(initialPosition.x, initialPosition.y);
         // select random goals
-        this.targets = this.maze.pick_targets(initial_position, this.n_targets);
-        this.found_targets = new Array(n_targets).fill(false);
-        this.level_id = level_id
+        this.targets = this.maze.pickTargets(initialPosition, this.nTargets);
+        this.foundTargets = new Array(nTargets).fill(false);
+        this.levelId = levelId
     }
 
     move(direction) {
@@ -235,18 +235,18 @@ class Level {
     // returns the index of the target if it's found, otherwise -1
     targetFound() {
         const indexOfTarget = this.targets.indexOf(this.position);
-        if (indexOfTarget > -1 && !this.found_targets[indexOfTarget]) {
+        if (indexOfTarget > -1 && !this.foundTargets[indexOfTarget]) {
             return indexOfTarget;
         }
         return -1;
     }
 
     won() {
-        return this.score == this.n_targets;
+        return this.score == this.nTargets;
     }
 
     updateTargetFound(targetId) {
-        this.found_targets[targetId] = true;
+        this.foundTargets[targetId] = true;
         ++this.score;
     }
 
@@ -255,54 +255,53 @@ class Level {
 class Game {
 
     // this is the model in the MCV design pattern. The state of the game is given by the current level and the state of the level
-    constructor(n_levels, generator) {
-        this.n_levels = n_levels; // constants
-        this.current_level = 0;
-        this.level = new Array(n_levels)
-        const initial_tiles = 4;
-        for (let i = 0; i < this.n_levels; ++i) {
-            this.level[i] = new Level(i, initial_tiles + i, initial_tiles+ i, new Position(0, 0), generator, 3 + i);
+    constructor(nLevels, generator) {
+        this.nLevels = nLevels; // constants
+        this.currentLevel = 0;
+        this.level = new Array(nLevels)
+        const initialTiles = 4;
+        for (let i = 0; i < this.nLevels; ++i) {
+            this.level[i] = new Level(i, initialTiles + i, initialTiles + i, new Position(0, 0), generator, 3 + i);
         }
     }
 
-    game_won() {
-        return this.current_level == this.n_levels
+    gameWon() {
+        return this.currentLevel == this.nLevels
     }
 
-    level_won() {
-        return this.get_current_level().won();
+    levelWon() {
+        return this.getCurrentLevel().won();
     }
 
-    advance_level() {
-        ++this.current_level;
+    advanceLevel() {
+        ++this.currentLevel;
     }
 
-    set_win_level(level) {
-        this.current_level = level;
-        ++this.current_level;
+    setWinLevel(level) {
+        this.currentLevel = level;
+        ++this.currentLevel;
     }
 
-    get_level(level) {
-        return this.level[level % this.n_levels];
+    getLevel(level) {
+        return this.level[level % this.nLevels];
     }
 
-    get_current_level() {
-        return this.get_level(this.current_level);
+    getCurrentLevel() {
+        return this.getLevel(this.currentLevel);
     }
 
     move(direction) {
-        this.get_current_level().move(direction);
-        console.log("move " + String(direction) + " " + this.get_current_level().position)
-        return this.get_current_level().position;
+        this.getCurrentLevel().move(direction);
+        console.log("move " + String(direction) + " " + this.getCurrentLevel().position)
+        return this.getCurrentLevel().position;
     }
 
-    get_position()
-    {
-        this.get_current_level().position;
+    getPosition() {
+        this.getCurrentLevel().position;
     }
 
     updateTargetFound(targetId) {
-        this.get_current_level().updateTargetFound(targetId);
+        this.getCurrentLevel().updateTargetFound(targetId);
     }
 }
 
@@ -317,35 +316,34 @@ class Controller {
 
     onStart() {
         this.view.visualizeGame(this.game);
-        this.view.visualizeLevel(this.game.get_current_level());
+        this.view.visualizeLevel(this.game.getCurrentLevel());
     }
 
     onMove(direction) {
-        const start = this.game.get_current_level().position;
-        const level = this.game.get_current_level()
+        const start = this.game.getCurrentLevel().position;
+        const level = this.game.getCurrentLevel()
         const end = this.game.move(direction);
-        this.view.updatePosition(start, end, level.level_id);
+        this.view.updatePosition(start, end, level.levelId);
 
-        const target = this.game.get_current_level().targetFound();
+        const target = this.game.getCurrentLevel().targetFound();
         if (target > -1) {
             this.game.updateTargetFound(target);
-            this.view.onTargetFound(target, this.game.get_current_level().level_id);
+            this.view.onTargetFound(target, this.game.getCurrentLevel().levelId);
         }
 
-        if (this.game.level_won()) {
-            this.view.onWinLevel(this.game.get_current_level());
-            this.game.advance_level();
-            if (this.game.game_won()) {
+        if (this.game.levelWon()) {
+            this.view.onWinLevel(this.game.getCurrentLevel());
+            this.game.advanceLevel();
+            if (this.game.gameWon()) {
                 this.sounds.onWindGame();
                 this.view.onWinGame();
             } else {
                 this.sounds.onWinLevel();
-                this.view.visualizeLevel(this.game.get_current_level());
+                this.view.visualizeLevel(this.game.getCurrentLevel());
             }
-        } else if (target > -1){
+        } else if (target > -1) {
             this.sounds.onTargetFound();
-        } else if (start == end)
-        {
+        } else if (start == end) {
             this.sounds.onHit();
         }
         else {
@@ -353,33 +351,30 @@ class Controller {
         }
     }
 
-    positionOnClick()
-    {
-        const position = this.game.get_current_level().position;
-        const level = this.game.get_current_level().level_id;
+    positionOnClick() {
+        const position = this.game.getCurrentLevel().position;
+        const level = this.game.getCurrentLevel().levelId;
         return this.view.screenPosition(position, level);
     }
 
-    onMoveClick(clickX, clickY, target)
-    {
+    onMoveClick(clickX, clickY, target) {
         console.log(
             "clientX: " + clickX + " " + clickY);
-        
-        const level = this.game.get_current_level().level_id + 1; 
-        
-        if (level == null)
-        {
+
+        const level = this.game.getCurrentLevel().levelId + 1;
+
+        if (level == null) {
             return;
         }
-        
+
         if (!document.querySelector(".l" + level + " .maze").contains(target)) {
             return;
         }
 
         const targetPos = this.positionOnClick();
         let direction = Direction.LEFT;
-    
-        if (Math.abs(clickX - targetPos.x) > Math.abs(clickY- targetPos.y)) {
+
+        if (Math.abs(clickX - targetPos.x) > Math.abs(clickY - targetPos.y)) {
             if (clickX < targetPos.x) {
                 direction = Direction.LEFT;
             } else {
@@ -421,7 +416,7 @@ class Controller {
     }
 }
 
-function generate_maze_random(x, y, threshold) {
+function generateMazeRandom(x, y, threshold) {
     let maze = new Maze(x, y);
     for (let i = 0; i < maze.n * 2; ++i) {
         let p = Math.random();
@@ -431,23 +426,23 @@ function generate_maze_random(x, y, threshold) {
     return maze;
 }
 
-function generate_maze_dpf(width, height) {
+function generateMazeDpf(width, height) {
     // generate maze 
     let maze = new Maze(width, height);
 
     // start of exploration 
-    const initial_cell = maze.get_cell_id(0, 0);
+    const initialCell = maze.getCellId(0, 0);
 
     // set visited list and queue
     let visited = new Array(maze.n).fill(false);
     let stack = new Array();
 
-    visited[initial_cell] = true;
-    stack.push(initial_cell);
+    visited[initialCell] = true;
+    stack.push(initialCell);
 
     while (stack.length != 0) {
         let cell = stack.pop();
-        let successors = maze.get_neighbors(cell);
+        let successors = maze.getNeighbors(cell);
 
         // check if the successors have been visited
         let unexplored = new Array();
@@ -463,12 +458,12 @@ function generate_maze_dpf(width, height) {
             stack.push(cell);
 
             // select a random neighboring cell 
-            const selected_cell = unexplored[Math.floor(Math.random() * unexplored.length)];
+            const selectedCell = unexplored[Math.floor(Math.random() * unexplored.length)];
 
             // add edge
-            maze.set_free(cell, selected_cell);
-            visited[selected_cell] = true;
-            stack.push(selected_cell);
+            maze.setFree(cell, selectedCell);
+            visited[selectedCell] = true;
+            stack.push(selectedCell);
         }
 
     }
@@ -479,23 +474,20 @@ function generate_maze_dpf(width, height) {
 
 class View {
 
-    constructor()
-    {
+    constructor() {
         this.player = "resources/davide.png";
     }
-    
-    get_cell(cellId, level) {
+
+    getCell(cellId, level) {
         return document.querySelector(".l" + String(level + 1) + " .cell" + String(cellId));
     }
 
-    get_cell_dim(maze)
-    {
+    getCellDim(maze) {
         return 400 / maze.width / 2;
     }
 
-    screenPosition(cellId, level)
-    {
-        var element = this.get_cell(cellId, level);
+    screenPosition(cellId, level) {
+        var element = this.getCell(cellId, level);
         var volume = element.getBoundingClientRect();
         var topPos = (volume.top + volume.bottom) / 2.;
         var leftPos = (volume.left + volume.right) / 2.;
@@ -503,8 +495,8 @@ class View {
         return new Position(leftPos, topPos);
     }
 
-    visualizePosition(cell_id, level, imgSrc) {
-        const cell = this.get_cell(cell_id, level);
+    visualizePosition(cellId, level, imgSrc) {
+        const cell = this.getCell(cellId, level);
         console.log(cell.offsetWidth);
         let width = 0;
         if (typeof cell.clip !== "undefined") { width = cell.clip.width; }
@@ -524,7 +516,7 @@ class View {
         }
     }
 
-    visualize_maze(maze, level) {
+    visualizeMaze(maze, level) {
         const container = document.querySelector("." + level + " .maze");
         for (let y = 0; y < maze.height; ++y) {
             const row = document.createElement("div");
@@ -532,14 +524,14 @@ class View {
             for (let x = 0; x < maze.width; ++x) {
                 const cell = document.createElement("div");
                 cell.classList.add("tile");
-                cell.classList.add('cell' + String(maze.get_cell_id(x, y)));
+                cell.classList.add('cell' + String(maze.getCellId(x, y)));
                 // add the tile image
 
-                let cell_id = maze.get_cell_id(x, y);
-                const down = maze.is_free(cell_id, Direction.DOWN);
-                const up = maze.is_free(cell_id, Direction.UP);
-                const left = maze.is_free(cell_id, Direction.LEFT);
-                const right = maze.is_free(cell_id, Direction.RIGHT);
+                let cellId = maze.getCellId(x, y);
+                const down = maze.isFree(cellId, Direction.DOWN);
+                const up = maze.isFree(cellId, Direction.UP);
+                const left = maze.isFree(cellId, Direction.LEFT);
+                const right = maze.isFree(cellId, Direction.RIGHT);
 
                 function addTile(cell, src, transform) {
                     var img = document.createElement("img");
@@ -547,7 +539,7 @@ class View {
                     if (transform != null) {
                         img.style.transform = transform;
                     }
-                    cell.appendChild(img);   
+                    cell.appendChild(img);
                 }
                 // all neighbours are free
                 if (down && up && left && right) {
@@ -592,58 +584,54 @@ class View {
     }
 
     visualizeLevel(level) {
-        const imgs = document.querySelectorAll(".l" + String(level.level_id + 1) + " .instructions img");
+        const imgs = document.querySelectorAll(".l" + String(level.levelId + 1) + " .instructions img");
         let imgsArr = Array();
         for (var i = 0; i < imgs.length; i++) {
             var image = imgs[i];
             imgsArr.push(image.getAttribute("src"));
         }
         console.log(imgsArr);
-        this.visualizePosition(level.position, game.current_level, this.player);
-        for (let i = 0; i < level.n_targets; ++i) {
-            this.visualizePosition(level.targets[i], game.current_level, imgsArr[i]);
+        this.visualizePosition(level.position, game.currentLevel, this.player);
+        for (let i = 0; i < level.nTargets; ++i) {
+            this.visualizePosition(level.targets[i], game.currentLevel, imgsArr[i]);
         }
     }
 
     visualizeGame(game) {
-        for (let l = 0; l < game.n_levels; ++l) {
-            const level = game.get_level(l);
+        for (let l = 0; l < game.nLevels; ++l) {
+            const level = game.getLevel(l);
             console.log(level.score)
-            this.visualize_maze(level.maze, "l" + String(l + 1));
+            this.visualizeMaze(level.maze, "l" + String(l + 1));
         }
     }
 
-    updatePosition(old_position, new_position, level)
-    {
+    updatePosition(oldPosition, newPosition, level) {
         // clear old position
-        this.visualizePosition(old_position, level, null);
+        this.visualizePosition(oldPosition, level, null);
         // update new position
-        this.visualizePosition(new_position, level, this.player);
+        this.visualizePosition(newPosition, level, this.player);
     }
 
-    onTargetFound(target, levelId)
-    {
+    onTargetFound(target, levelId) {
         console.log("Found target ", target, " at level ", levelId + 1);
         const divLevel = document.querySelector(".lvl.l" + String(levelId + 1));
         const divPerson = divLevel.querySelector(".person .p" + String(target + 1))
         divPerson.style.opacity = "1.0";
     }
 
-    onWinLevel(level)
-    {
-        const level_id = level.level_id + 1
-        const img_level = document.querySelector(".l" + String(level_id));
-        console.log(img_level);
-        img_level.style.opacity = "1.0";
-        const l = document.querySelector(".lvl.l" + String(level_id + 1));
-        alert("You won level "+ String(level_id) + "!");
+    onWinLevel(level) {
+        const levelId = level.levelId + 1
+        const imgLevel = document.querySelector(".l" + String(levelId));
+        console.log(imgLevel);
+        imgLevel.style.opacity = "1.0";
+        const l = document.querySelector(".lvl.l" + String(levelId + 1));
+        alert("You won level " + String(levelId) + "!");
         console.log("scroll top", l);
         if (l != null)
             l.scrollIntoView(true);
     }
 
-    onWinGame()
-    {
+    onWinGame() {
         alert("You won the game!");
         const top = document.querySelector(".title");
         top.scrollIntoView(true);
@@ -654,14 +642,13 @@ class View {
         text.textContent = "Gioca Ancora";
     }
 
-    clear()
-    {
+    clear() {
         // clear maze
         const mazes = document.querySelectorAll(".maze");
         mazes.forEach(function (maze) {
             maze.innerHTML = '';
         })
-            // reset the levels
+        // reset the levels
         let imgs = document.querySelectorAll(".levels img");
         imgs.forEach(function (img) {
             img.style.opacity = "0.5";
@@ -678,8 +665,7 @@ class View {
         top.scrollIntoView(true);
     }
 
-    musicOn()
-    {
+    musicOn() {
         var element = document.querySelector(".music");
         var img = element.querySelector("img");
         img.src = "resources/music_on.png";
@@ -687,8 +673,7 @@ class View {
         text.textContent = "Music Off";
     }
 
-    musicOff()
-    {
+    musicOff() {
         var element = document.querySelector(".music");
         var img = element.querySelector("img");
         img.src = "resources/music_off.png";
@@ -696,8 +681,7 @@ class View {
         text.textContent = "Music On";
     }
 
-    effectsOn()
-    {
+    effectsOn() {
         var element = document.querySelector(".effects");
         var img = element.querySelector("img");
         img.src = "resources/sound_on.png";
@@ -705,8 +689,7 @@ class View {
         text.textContent = "Sound Off";
     }
 
-    effectsOff()
-    {
+    effectsOff() {
         var element = document.querySelector(".effects");
         var img = element.querySelector("img");
         img.src = "resources/sound_off.png";
@@ -722,22 +705,21 @@ function Sound(src, volume = 1) {
     this.sound.style.display = "none";
     this.sound.volume = volume;
     document.body.appendChild(this.sound);
-    this.play = function(){
-      this.sound.play();
+    this.play = function () {
+        this.sound.play();
     }
-    this.pause = function(){
-      this.sound.pause();
+    this.pause = function () {
+        this.sound.pause();
     }
-    this.stop = function(){
+    this.stop = function () {
         this.sound.pause();
         this.sound.currentTime = 0;
-      }
-} 
+    }
+}
 
 class Sounds {
 
-    constructor()
-    {
+    constructor() {
         this.soundOn = true;
         this.backgroundMusic = new Sound("resources/background.mp3", 0.5);
         this.moves = [new Sound("resources/step1.wav", 0.1), new Sound("resources/step2.wav", 0.1)];
@@ -751,8 +733,7 @@ class Sounds {
         this.nMove = 0;
     }
 
-    play(sound)
-    {
+    play(sound) {
         this.moves[0].stop()
         this.moves[1].stop()
         this.hit.stop()
@@ -763,30 +744,25 @@ class Sounds {
             sound.play();
     }
 
-    onWindGame()
-    {
+    onWindGame() {
         this.play(this.game);
     }
 
-    onMove()
-    {
+    onMove() {
         this.play(this.moves[this.nMove]);
         this.nMove += 1;
         this.nMove = this.nMove % this.moves.length;
     }
 
-    onHit()
-    {
+    onHit() {
         this.play(this.hit);
     }
-    
-    onWinLevel()
-    {
+
+    onWinLevel() {
         this.play(this.level);
     }
 
-    onTargetFound()
-    {
+    onTargetFound() {
         this.play(this.target);
     }
 
@@ -798,20 +774,18 @@ class Sounds {
         this.backgroundMusic.pause();
     }
 
-    effectsOn()
-    {
+    effectsOn() {
         this.soundOn = true;
     }
 
-    effectsOff()
-    {
+    effectsOff() {
         this.soundOn = false;
     }
 }
 ///
 let size = 5;
 
-let game = new Game(4, generate_maze_dpf);
+let game = new Game(4, generateMazeDpf);
 
 let view = new View();
 
@@ -841,14 +815,13 @@ addEventListener('keydown', function (e) {
     controller.onMove(direction);
 });
 
-document.body.addEventListener('click', function (e)
-{
+document.body.addEventListener('click', function (e) {
     controller.onMoveClick(e.clientX, e.clientY, e.target);
-}, true); 
+}, true);
 
 document.querySelector(".play").addEventListener(
     "click", function (e) {
-        game = new Game(4, generate_maze_dpf);
+        game = new Game(4, generateMazeDpf);
 
         view.clear();
 
@@ -879,8 +852,8 @@ function scrollFunction() {
         })
         hs.forEach(function (h2) { h2.style.display = "block"; });
     }
-} 
-  
+}
+
 document.querySelector(".music").addEventListener(
     "click", function (e) {
         controller.switchMusic();

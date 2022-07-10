@@ -16,7 +16,7 @@ img {
     color: #E2E2E2;
     font-family: Noteworthy, Arial, Helvetica, sans-serif;
     text-align: center;
-    justify-content:center;
+    justify-content: center;
     align-items: flex-end;
 }
 
@@ -67,8 +67,7 @@ img {
     max-width: 100%;
 }
 
-.levels img
-{
+.levels img {
     max-width: 12.5vw;
 }
 
@@ -82,8 +81,7 @@ img {
     width: 100%;
 }
 
-.commands img
-{
+.commands img {
     opacity: 1;
     width: 40vw;
     max-width: 30px;
@@ -92,10 +90,10 @@ img {
 .tooltip {
     position: relative;
     display: inline-block;
-  }
-  
-  /* Tooltip text */
-  .tooltip .tooltiptext {
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
     visibility: hidden;
     font-family: Noteworthy, Arial, Helvetica, sans-serif;
     width: 120px;
@@ -108,12 +106,12 @@ img {
     /* Position the tooltip text - see examples below! */
     position: absolute;
     z-index: 1;
-  }
+}
 
-  /* Show the tooltip text when you mouse over the tooltip container */
+/* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
     visibility: visible;
-  }
+}
 
 .level {
     /* padding: 20px; */
@@ -289,8 +287,7 @@ img.target {
 
 @media (max-width : 600px) {
 
-    .title
-    {
+    .title {
         font-size: x-small;
     }
 
