@@ -1,56 +1,128 @@
-body {    justify-content: center;
+body {
+    justify-content: center;
 }
 
 img {
     border-radius: 50%;
-    opacity: 0.2;
+    opacity: 0.15;
     object-fit: contain;
 }
 
-.title {
+.title-wrap {
     display: flex;
-    margin:0 auto;
-    height:60vh; 
+    margin: 0 auto;
+    height: 60vh;
     background-color: #93B4B4;
     color: #E2E2E2;
     font-family: Noteworthy, Arial, Helvetica, sans-serif;
     text-align: center;
-    justify-content: center;
+    justify-content:center;
     align-items: flex-end;
-} 
+}
 
-.levels
-{
+.title {
+    /* display:flex; */
+    /* margin: 0 auto;
+    height: 60vh; */
+    background-color: #93B4B4;
+    color: #E2E2E2;
+    font-family: Noteworthy, Arial, Helvetica, sans-serif;
+    /* text-align: center;
+    justify-content:center; */
+    /* align-items: flex-end; */
+    /* flex-direction: column; */
+}
+
+.title .davide {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.title .written img {
+    opacity: 1;
+    border-radius: 0%;
+    width: 50vw;
+}
+
+.title .face img {
+    opacity: 1;
+    border-radius: 0%;
+    width: 13vw;
+}
+
+.levels {
     display: flex;
     justify-content: center;
     background-color: #E2E2E2;
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
     text-align: center;
     align-items: center;
-    position: -webkit-sticky; /* Required for Safari */
+    position: -webkit-sticky;
+    /* Required for Safari */
     position: sticky;
     transition: 4s;
     top: 0px;
     z-index: 99;
-    max-width:100%;
+    max-width: 100%;
 }
 
-.commands
+.levels img
 {
+    max-width: 12.5vw;
+}
+
+.commands {
+    position: fixed;
+    bottom: 0;
     display: flex;
-    flex-direction: column;    
+    z-index: 100;
+    background-color: #E2E2E2;
+    justify-content: left;
+    width: 100%;
 }
 
-.level
+.commands img
 {
+    opacity: 1;
+    width: 40vw;
+    max-width: 30px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Tooltip text */
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    font-family: Noteworthy, Arial, Helvetica, sans-serif;
+    width: 120px;
+    background-color: #E2E2E2;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    top: -40px;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+  }
+
+  /* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+.level {
     /* padding: 20px; */
     font-size: x-small;
     color: #93B4B4;
     justify-content: center;
 }
 
-.level h1
-{
+.level h1 {
     color: #927B6D;
     font-size: x-small;
     text-transform: uppercase;
@@ -58,8 +130,7 @@ img {
 }
 
 
-.level h2
-{
+.level h2 {
     font-size: x-small;
 }
 
@@ -68,128 +139,114 @@ img {
     border-radius: 50%;
 }
 
-.lvl
-{
+.lvl {
     display: flex;
     text-align: center;
     justify-content: space-around;
-    align-items: center; 
+    align-items: center;
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
 }
 
-.lvl h1
-{
+.lvl h1 {
     font-family: Noteworthy, Arial, Helvetica, sans-serif;
     text-transform: uppercase;
 }
 
-.lvl.l1
-{
+.lvl.l1 {
     background-color: #C0CEC5;
 }
 
-.l1 h1
-{
+.l1 h1 {
     color: #927B6D;
 }
 
-.lvl.l2
-{
+.lvl.l2 {
     background-color: #927B6D;
 }
 
-.l2 h1
-{
+.l2 h1 {
     color: #C0CEC5;
 }
 
-.lvl.l3
-{
+.lvl.l3 {
     background-color: #C1DFFC;
 }
 
-.l3 h1
-{
-    color: #C0CEC5;
+.l3 h1 {
+    color: #927B6D;
 }
 
 
-.lvl.l4
-{
-    background-color: #DBBFC9;
+.lvl.l4 {
+    background-color: #93B4B4;
 }
 
-.l4 h1
-{
-    color: #C0CEC5;
+.l4 h1 {
+    color: #E2E2E2;
 }
 
 
-.instructions
-{
+.instructions {
     text-align: center;
     font-family: Chalkboard, Arial, Helvetica, sans-serif;
     max-width: 25vw;
     max-width: 300px;
 }
 
-.person
-{
+.person {
     display: flex;
     align-items: center;
 }
 
-.person img
-{
-    max-width: 10vw;
+.person img {
+    width: 10vw;
+    max-width: 100px;
     padding-left: 2vw;
     padding-right: 2vw;
 }
 
-.people
-{
+.people {
     padding-top: 10vw;
     padding-bottom: 10vw;
 }
 
-.maze
-{
+.maze {
     vertical-align: center;
 }
 
-.row
-{
-    display : flex;
+.row {
+    display: flex;
     max-width: 75vw;
     max-width: 500px;
 }
 
-.tile 
-{
-    position : relative;
-    margin : 1px;
+.tile {
+    position: relative;
+    margin-left: 2px;
+    margin-right: 3px;
 }
 
-.tile img
-{
-    max-width:100%;
-    border-radius : 10%;
-    opacity : 1.0;
-    z-index : 1;
+.tile img {
+    max-width: 100%;
+    border-radius: 10%;
+    opacity: 1.0;
+    z-index: 1;
 }
 
-img.target
-{
-    opacity : 1.0;
-    position : absolute;
+img.target {
+    opacity: 1.0;
+    position: absolute;
     background-position: center;
-    z-index : 2;
-    width : 50%; 
-    height : 50%; 
-    object-fit : contain;
-    border-radius : 50%;
+    z-index: 2;
+    width: 75%;
+    height: 75%;
+    object-fit: contain;
+    border-radius: 50%;
     margin: auto;
-    top: 0; left: 0; bottom: 0; right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 /* media queries */
@@ -201,20 +258,19 @@ img.target
 
     .instructions {
         flex-direction: column;
-        flex-wrap: wrap;   
+        flex-wrap: wrap;
     }
 
     .people {
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap;   
+        flex-wrap: wrap;
         text-align: center;
         justify-content: space-between;
-        align-items: center; 
+        align-items: center;
     }
 
-    .person
-    {
+    .person {
         background-color: transparent;
     }
 
@@ -222,24 +278,28 @@ img.target
         display: none;
     }
 
-    .lvl.l2
-    {
-        flex-direction: column-reverse;  
+    .lvl.l2 {
+        flex-direction: column-reverse;
     }
 
-    .lvl.l4
-    {
-        flex-direction: column-reverse;  
+    .lvl.l4 {
+        flex-direction: column-reverse;
     }
 }
 
 @media (max-width : 600px) {
-    .lvl h1{
+
+    .title
+    {
+        font-size: x-small;
+    }
+
+    .lvl h1 {
         font-size: large;
     }
 
-    .lvl h2{
-        font-size:medium;
+    .lvl h2 {
+        font-size: medium;
     }
 
     .lvl {

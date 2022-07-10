@@ -283,7 +283,7 @@ class Game {
     }
 
     get_level(level) {
-        return this.level[level];
+        return this.level[level % this.n_levels];
     }
 
     get_current_level() {
@@ -311,6 +311,8 @@ class Controller {
         this.game = game;
         this.view = view;
         this.sounds = sounds;
+        this.musicOn = true;
+        this.effectsOn = true;
     }
 
     onStart() {
@@ -365,6 +367,11 @@ class Controller {
         
         const level = this.game.get_current_level().level_id + 1; 
         
+        if (level == null)
+        {
+            return;
+        }
+        
         if (!document.querySelector(".l" + level + " .maze").contains(target)) {
             return;
         }
@@ -387,6 +394,30 @@ class Controller {
         }
         console.log("Direction " + String(direction));
         this.onMove(direction);
+    }
+
+    switchMusic() {
+        if (this.musicOn) {
+            this.musicOn = false;
+            this.sounds.musicOff();
+            this.view.musicOff();
+        } else {
+            this.musicOn = true;
+            this.sounds.musicOn();
+            this.view.musicOn();
+        }
+    }
+
+    switchSound() {
+        if (this.effectsOn) {
+            this.effectsOn = false;
+            this.sounds.effectsOff();
+            this.view.effectsOff();
+        } else {
+            this.effectsOn = true;
+            this.sounds.effectsOn();
+            this.view.effectsOn();
+        }
     }
 }
 
@@ -616,7 +647,11 @@ class View {
         alert("You won the game!");
         const top = document.querySelector(".title");
         top.scrollIntoView(true);
-
+        const element = document.querySelector(".play");
+        var img = element.querySelector("img");
+        img.src = "resources/play.png";
+        var text = element.querySelector(".tooltiptext");
+        text.textContent = "Gioca Ancora";
     }
 
     clear()
@@ -642,13 +677,50 @@ class View {
         const top = document.querySelector(".lvl.l1");
         top.scrollIntoView(true);
     }
+
+    musicOn()
+    {
+        var element = document.querySelector(".music");
+        var img = element.querySelector("img");
+        img.src = "resources/music_on.png";
+        var text = element.querySelector(".tooltiptext");
+        text.textContent = "Music Off";
+    }
+
+    musicOff()
+    {
+        var element = document.querySelector(".music");
+        var img = element.querySelector("img");
+        img.src = "resources/music_off.png";
+        var text = element.querySelector(".tooltiptext");
+        text.textContent = "Music On";
+    }
+
+    effectsOn()
+    {
+        var element = document.querySelector(".effects");
+        var img = element.querySelector("img");
+        img.src = "resources/sound_on.png";
+        var text = element.querySelector(".tooltiptext");
+        text.textContent = "Sound Off";
+    }
+
+    effectsOff()
+    {
+        var element = document.querySelector(".effects");
+        var img = element.querySelector("img");
+        img.src = "resources/sound_off.png";
+        var text = element.querySelector(".tooltiptext");
+        text.textContent = "Sound On";
+    }
 }
 
-function Sound(src) {
+function Sound(src, volume = 1) {
     this.sound = document.createElement("audio");
     this.sound.src = src;
     this.sound.setAttribute("preload", "auto");
     this.sound.style.display = "none";
+    this.sound.volume = volume;
     document.body.appendChild(this.sound);
     this.play = function(){
       this.sound.play();
@@ -667,20 +739,22 @@ class Sounds {
     constructor()
     {
         this.soundOn = true;
-        this.backgroundMusic = new Sound("resources/background.mp3");
-        this.move = new Sound("resources/move.mp3");
-        this.hit = new Sound("resources/hit.mp3");
-        this.target = new Sound("resources/target.mp3");
-        this.level = new Sound("resources/level.wav");
-        this.game = new Sound("resources/level.wav");
+        this.backgroundMusic = new Sound("resources/background.mp3", 0.5);
+        this.moves = [new Sound("resources/step1.wav", 0.1), new Sound("resources/step2.wav", 0.1)];
+        this.hit = new Sound("resources/hit.wav", 0.3);
+        this.target = new Sound("resources/target.wav", 0.5);
+        this.level = new Sound("resources/level.wav", 0.2);
+        this.game = new Sound("resources/game.wav", 0.9);
 
         this.backgroundMusic.sound.setAttribute("loop", "true");
         this.backgroundMusic.play();
+        this.nMove = 0;
     }
 
     play(sound)
     {
-        this.move.stop()
+        this.moves[0].stop()
+        this.moves[1].stop()
         this.hit.stop()
         this.target.stop()
         this.level.stop()
@@ -696,7 +770,9 @@ class Sounds {
 
     onMove()
     {
-        this.play(this.move);
+        this.play(this.moves[this.nMove]);
+        this.nMove += 1;
+        this.nMove = this.nMove % this.moves.length;
     }
 
     onHit()
@@ -714,15 +790,22 @@ class Sounds {
         this.play(this.target);
     }
 
-    switch()
+    musicOn() {
+        this.backgroundMusic.play();
+    }
+
+    musicOff() {
+        this.backgroundMusic.pause();
+    }
+
+    effectsOn()
     {
-        if (this.soundOn) {
-            this.soundOn = false;
-            this.backgroundMusic.pause()
-        } else {
-            this.soundOn = true;
-            this.backgroundMusic.play();
-        }
+        this.soundOn = true;
+    }
+
+    effectsOff()
+    {
+        this.soundOn = false;
     }
 }
 ///
@@ -763,7 +846,7 @@ document.body.addEventListener('click', function (e)
     controller.onMoveClick(e.clientX, e.clientY, e.target);
 }, true); 
 
-document.getElementById("play").addEventListener(
+document.querySelector(".play").addEventListener(
     "click", function (e) {
         game = new Game(4, generate_maze_dpf);
 
@@ -798,8 +881,22 @@ function scrollFunction() {
     }
 } 
   
-document.getElementById("music").addEventListener(
+document.querySelector(".music").addEventListener(
     "click", function (e) {
-        controller.sounds.switch();
+        controller.switchMusic();
+    }
+)
+
+document.querySelector(".effects").addEventListener(
+    "click", function (e) {
+        controller.switchSound();
+    }
+)
+
+const btn = document.querySelector(".play");
+btn.addEventListener(
+    "click", function (e) {
+        var img = btn.querySelector("img")
+        img.src = "resources/replay.png";
     }
 )

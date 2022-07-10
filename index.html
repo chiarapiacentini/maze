@@ -11,14 +11,21 @@
 
 <body>
     <script src="js/script.js" defer></script>
-    <div class="title">
-        <h1>Le avventure di <br> <b>Davide</b> & <b>Marco</b></h1>
+    <div class="title-wrap">
+        <div class="title">
+            <h1>Le avventure di <br></h1>
+            <!-- <b>Davide</b> -->
+            <div class="davide">
+                <div class="written">
+                    <img src="resources/title.gif">
+                </div>
+                <div class="face">
+                    <img src="resources/davide.png">
+                </div>
+            </div>
+        </div>
     </div>
     <div class="levels">
-        <div class="commands">
-            <button id="play">Play</button>
-            <button id="music">Music</button>
-        </div>
         <div class="level">
             <img src="resources/livello1.png" class="l1">
             <h1>Livello 1</h1>
@@ -98,23 +105,23 @@
             <div class="people">
                 <div class="person">
                     <img src="resources/amico1.png" class="p1">
-                    <p>Amico 1</p>
+                    <p>Chicco</p>
                 </div>
                 <div class="person">
                     <img src="resources/amico2.png" class="p2">
-                    <p>Amico 2</p>
+                    <p>Ali</p>
                 </div>
                 <div class="person">
                     <img src="resources/amico3.png" class="p3">
-                    <p>Amico 3</p>
+                    <p>Milo</p>
                 </div>
                 <div class="person">
                     <img src="resources/amico4.png" class="p4">
-                    <p>Amico 4</p>
+                    <p>Thiago</p>
                 </div>
                 <div class="person">
                     <img src="resources/amico5.png" class="p5">
-                    <p>Amico 5</p>
+                    <p>Chiara</p>
                 </div>
             </div>
         </div>
@@ -158,6 +165,20 @@
     <div class="maze">
     </div>
 
+    <div class="commands">
+        <div class="tooltip music">
+            <span class="tooltiptext">Music Off</span>
+            <img id="music" src="resources/music_on.png">
+        </div>
+        <div class="tooltip effects">
+            <span class="tooltiptext">Sounds Off</span>
+            <img src="resources/sound_on.png">
+        </div>
+        <div class="tooltip play">
+            <span class="tooltiptext">Restart</span>
+            <img id="play" src="resources/replay.png">
+        </div>
+    </div>
 </body>
 
 </html>
