@@ -283,6 +283,10 @@ img.target {
     .lvl.l4 {
         flex-direction: column-reverse;
     }
+
+    .lvl.l4 {
+        padding-bottom: 30px;
+    }
 }
 
 @media (max-width : 600px) {

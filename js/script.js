@@ -670,7 +670,7 @@ class View {
         var img = element.querySelector("img");
         img.src = "resources/music_on.png";
         var text = element.querySelector(".tooltiptext");
-        text.textContent = "Music Off";
+        text.textContent = "Musica Off";
     }
 
     musicOff() {
@@ -678,7 +678,7 @@ class View {
         var img = element.querySelector("img");
         img.src = "resources/music_off.png";
         var text = element.querySelector(".tooltiptext");
-        text.textContent = "Music On";
+        text.textContent = "Musica On";
     }
 
     effectsOn() {
@@ -686,7 +686,7 @@ class View {
         var img = element.querySelector("img");
         img.src = "resources/sound_on.png";
         var text = element.querySelector(".tooltiptext");
-        text.textContent = "Sound Off";
+        text.textContent = "Suono Off";
     }
 
     effectsOff() {
@@ -694,7 +694,7 @@ class View {
         var img = element.querySelector("img");
         img.src = "resources/sound_off.png";
         var text = element.querySelector(".tooltiptext");
-        text.textContent = "Sound On";
+        text.textContent = "Suono On";
     }
 }
 
