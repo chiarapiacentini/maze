@@ -625,14 +625,14 @@ class View {
         console.log(imgLevel);
         imgLevel.style.opacity = "1.0";
         const l = document.querySelector(".lvl.l" + String(levelId + 1));
-        alert("You won level " + String(levelId) + "!");
+        // alert("Hai vinto il livello " + String(levelId) + "!");
         console.log("scroll top", l);
         if (l != null)
             l.scrollIntoView(true);
     }
 
     onWinGame() {
-        alert("You won the game!");
+        // alert("Hai vinto la partita!");
         const top = document.querySelector(".title");
         top.scrollIntoView(true);
         const element = document.querySelector(".play");
